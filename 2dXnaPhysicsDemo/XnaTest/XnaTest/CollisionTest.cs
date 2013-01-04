@@ -130,7 +130,7 @@ namespace XnaTest
 
         public override void Draw(GameTime gameTime)
         {
-            
+            // test comment
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.Red);
             // otkomentiraj ovo za gledat kako izgleda model
