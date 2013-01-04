@@ -78,7 +78,7 @@ namespace XnaTest
             _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromShape(_rectangle.FixtureList[0].Shape,
                                                                                 MaterialType.Squares,
                                                                                 Color.Orange, 1f));
-            LoadObstacles();
+            //LoadObstacles();
         }
 
         private void LoadObstacles()
