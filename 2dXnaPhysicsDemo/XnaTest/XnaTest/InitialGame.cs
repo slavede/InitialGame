@@ -31,6 +31,7 @@ namespace XnaTest
 
         public string GetDetails()
         {
+		
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("This demo shows a single body with one attached fixture and shape.");
             sb.AppendLine("A fixture binds a shape to a body and adds material");
