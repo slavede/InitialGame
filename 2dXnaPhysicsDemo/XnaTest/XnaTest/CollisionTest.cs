@@ -64,7 +64,7 @@ namespace XnaTest
             background = ScreenManager.Content.Load<Texture2D>("background");
             characterSprite = new AnimatedSprite(ScreenManager.Content.Load<Texture2D>("character"), 4, 4);
 
-            World.Gravity = new Vector2(0, 100f);
+            World.Gravity = new Vector2(0, 20f);
 
             _border = new Border(World, this, ScreenManager.GraphicsDevice.Viewport);
 
@@ -130,7 +130,7 @@ namespace XnaTest
 
         public override void Draw(GameTime gameTime)
         {
-            // test comment
+            
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.Red);
             // otkomentiraj ovo za gledat kako izgleda model
@@ -144,20 +144,20 @@ namespace XnaTest
             ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X +" "+ _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
 
             // otkomentiraj ovo za gledat kako izgleda path sisa
-            for (int i = 0; i < _bridgeBodiesL.Count; ++i)
-            {
-                ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
-                                               ConvertUnits.ToDisplayUnits(_bridgeBodiesL[i].Position), null,
-                                               Color.White, _bridgeBodiesL[i].Rotation, _bridgeBox.Origin, 1f,
-                                               SpriteEffects.None, 0f);
-            }
-            for (int i = 0; i < _bridgeBodiesR.Count; ++i)
-            {
-                ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
-                                               ConvertUnits.ToDisplayUnits(_bridgeBodiesR[i].Position), null,
-                                               Color.White, _bridgeBodiesR[i].Rotation, _bridgeBox.Origin, 1f,
-                                               SpriteEffects.None, 0f);
-            }
+            //for (int i = 0; i < _bridgeBodiesL.Count; ++i)
+            //{
+            //    ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
+            //                                   ConvertUnits.ToDisplayUnits(_bridgeBodiesL[i].Position), null,
+            //                                   Color.White, _bridgeBodiesL[i].Rotation, _bridgeBox.Origin, 1f,
+            //                                   SpriteEffects.None, 0f);
+            //}
+            //for (int i = 0; i < _bridgeBodiesR.Count; ++i)
+            //{
+            //    ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
+            //                                   ConvertUnits.ToDisplayUnits(_bridgeBodiesR[i].Position), null,
+            //                                   Color.White, _bridgeBodiesR[i].Rotation, _bridgeBox.Origin, 1f,
+            //                                   SpriteEffects.None, 0f);
+            //}
 
             ScreenManager.SpriteBatch.End();
             _border.Draw();
