@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace XnaTest
 {
-    internal class CollisionTest : PhysicsGameScreen, IDemoScreen
+    internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
         private Border _border;
         private Body _rectangle;
@@ -83,54 +83,54 @@ namespace XnaTest
 
         private void LoadObstacles()
         {
-            Vertices box = PolygonTools.CreateRectangle(1f, 10f);
-            PolygonShape shape = new PolygonShape(box, 30);
-            _bridgeBox =
-               new Sprite(ScreenManager.Assets.TextureFromShape(shape, MaterialType.Dots, Color.SandyBrown, 1f));
+            //Vertices box = PolygonTools.CreateRectangle(1f, 10f);
+            //PolygonShape shape = new PolygonShape(box, 30);
+            //_bridgeBox =
+            //   new Sprite(ScreenManager.Assets.TextureFromShape(shape, MaterialType.Dots, Color.SandyBrown, 1f));
 
-            Path bridgePathL = new Path();
-            bridgePathL.Add(new Vector2(-400, -50));
-            bridgePathL.Add(new Vector2(0, 0));
-            bridgePathL.Closed = false;
+            //Path bridgePathL = new Path();
+            //bridgePathL.Add(new Vector2(-400, -50));
+            //bridgePathL.Add(new Vector2(0, 0));
+            //bridgePathL.Closed = false;
 
-            _bridgeBodiesL = PathManager.EvenlyDistributeShapesAlongPath(World, bridgePathL, shape,
-                                                                        BodyType.Dynamic, 30);
-           
+            //_bridgeBodiesL = PathManager.EvenlyDistributeShapesAlongPath(World, bridgePathL, shape,
+            //                                                            BodyType.Dynamic, 30);
+
+
+            ////Attach the first and last fixtures to the world
+            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesL[0], new Vector2(0f, -0.5f),
+            //                                      _bridgeBodiesL[0].Position);
+            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesL[_bridgeBodiesL.Count - 1], new Vector2(0, 0.5f),
+            //                                      _bridgeBodiesL[_bridgeBodiesL.Count - 1].Position);
+
+            //PathManager.AttachBodiesWithRevoluteJoint(World, _bridgeBodiesL, new Vector2(0f, -0.5f),
+            //                                          new Vector2(0f, 0.5f),
+            //                                          false, true);
+
+            //Path bridgePathR = new Path();
+            //bridgePathR.Add(new Vector2(350, -50));
+            //bridgePathR.Add(new Vector2(0, 0));
+            //bridgePathR.Closed = false;
+
+            //_bridgeBodiesR = PathManager.EvenlyDistributeShapesAlongPath(World, bridgePathR, shape,
+            //                                                            BodyType.Dynamic, 30);
 
             //Attach the first and last fixtures to the world
-            JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesL[0], new Vector2(0f, -0.5f),
-                                                  _bridgeBodiesL[0].Position);
-            JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesL[_bridgeBodiesL.Count - 1], new Vector2(0, 0.5f),
-                                                  _bridgeBodiesL[_bridgeBodiesL.Count - 1].Position);
+            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesR[0], new Vector2(0f, -0.5f),
+            //                                      _bridgeBodiesR[0].Position);
+            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesR[_bridgeBodiesR.Count - 1], new Vector2(0, 0.5f),
+            //                                      _bridgeBodiesR[_bridgeBodiesR.Count - 1].Position);
 
-            PathManager.AttachBodiesWithRevoluteJoint(World, _bridgeBodiesL, new Vector2(0f, -0.5f),
-                                                      new Vector2(0f, 0.5f),
-                                                      false, true);
-
-            Path bridgePathR = new Path();
-            bridgePathR.Add(new Vector2(350, -50));
-            bridgePathR.Add(new Vector2(0, 0));
-            bridgePathR.Closed = false;
-
-            _bridgeBodiesR = PathManager.EvenlyDistributeShapesAlongPath(World, bridgePathR, shape,
-                                                                        BodyType.Dynamic, 30);
-          
-            //Attach the first and last fixtures to the world
-            JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesR[0], new Vector2(0f, -0.5f),
-                                                  _bridgeBodiesR[0].Position);
-            JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesR[_bridgeBodiesR.Count - 1], new Vector2(0, 0.5f),
-                                                  _bridgeBodiesR[_bridgeBodiesR.Count - 1].Position);
-
-            PathManager.AttachBodiesWithRevoluteJoint(World, _bridgeBodiesR, new Vector2(0f, -0.5f),
-                                                      new Vector2(0f, 0.5f),
-                                                      false, true);
+            //PathManager.AttachBodiesWithRevoluteJoint(World, _bridgeBodiesR, new Vector2(0f, -0.5f),
+            //                                          new Vector2(0f, 0.5f),
+            //                                          false, true);
 
 
         }
 
         public override void Draw(GameTime gameTime)
         {
-            
+
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.Red);
             // otkomentiraj ovo za gledat kako izgleda model
@@ -139,25 +139,25 @@ namespace XnaTest
             //                   Color.White, _rectangle.Rotation, _rectangleSprite.Origin, 1f,
             //                   SpriteEffects.None, 0f);
 
-            characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(_rectangle.Position.X-characterSprite.Width/2,_rectangle.Position.Y-characterSprite.Height/2));
+            characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(_rectangle.Position.X - characterSprite.Width / 2, _rectangle.Position.Y - characterSprite.Height / 2));
 
-            ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X +" "+ _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
+            ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X + " " + _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
 
             // otkomentiraj ovo za gledat kako izgleda path sisa
-            for (int i = 0; i < _bridgeBodiesL.Count; ++i)
-            {
-                ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
-                                               ConvertUnits.ToDisplayUnits(_bridgeBodiesL[i].Position), null,
-                                               Color.White, _bridgeBodiesL[i].Rotation, _bridgeBox.Origin, 1f,
-                                               SpriteEffects.None, 0f);
-            }
-            for (int i = 0; i < _bridgeBodiesR.Count; ++i)
-            {
-                ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
-                                               ConvertUnits.ToDisplayUnits(_bridgeBodiesR[i].Position), null,
-                                               Color.White, _bridgeBodiesR[i].Rotation, _bridgeBox.Origin, 1f,
-                                               SpriteEffects.None, 0f);
-            }
+            //for (int i = 0; i < _bridgeBodiesL.Count; ++i)
+            //{
+            //    ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
+            //                                   ConvertUnits.ToDisplayUnits(_bridgeBodiesL[i].Position), null,
+            //                                   Color.White, _bridgeBodiesL[i].Rotation, _bridgeBox.Origin, 1f,
+            //                                   SpriteEffects.None, 0f);
+            //}
+            //for (int i = 0; i < _bridgeBodiesR.Count; ++i)
+            //{
+            //    ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
+            //                                   ConvertUnits.ToDisplayUnits(_bridgeBodiesR[i].Position), null,
+            //                                   Color.White, _bridgeBodiesR[i].Rotation, _bridgeBox.Origin, 1f,
+            //                                   SpriteEffects.None, 0f);
+            //}
 
             ScreenManager.SpriteBatch.End();
             _border.Draw();
@@ -165,7 +165,7 @@ namespace XnaTest
             base.Draw(gameTime);
         }
 
-         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             characterSprite.Update();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
