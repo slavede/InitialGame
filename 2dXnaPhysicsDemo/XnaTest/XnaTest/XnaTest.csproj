@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimatedSprite.cs" />
+    <Compile Include="InitialGame.cs" />
     <Compile Include="Physics\Drawing\AssetCreator.cs" />
     <Compile Include="Physics\BackgroundScreen.cs" />
     <Compile Include="Physics\Camera2D.cs" />

@@ -63,23 +63,23 @@ namespace XnaTest
             base.LoadContent();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
-            characterSprite = new AnimatedSprite(ScreenManager.Content.Load<Texture2D>("character"), 4, 4);
+            //characterSprite = new AnimatedSprite(ScreenManager.Content.Load<Texture2D>("character"), 4, 4);
 
             World.Gravity = new Vector2(0, 100f);
 
             _border = new Border(World, this, ScreenManager.GraphicsDevice.Viewport);
 
-            _rectangle = BodyFactory.CreateRectangle(World, characterSprite.Width, characterSprite.Height, 10f);
-            _rectangle.Position = new Vector2(0, -50);
-            _rectangle.BodyType = BodyType.Dynamic;
+            // _rectangle = BodyFactory.CreateRectangle(World, characterSprite.Width, characterSprite.Height, 10f);
+            // _rectangle.Position = new Vector2(0, -50);
+            // _rectangle.BodyType = BodyType.Dynamic;
 
-            SetUserAgent(_rectangle, 5f, 1f);
+            // SetUserAgent(_rectangle, 5f, 1f);
 
             // create sprite based on body
-            _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromShape(_rectangle.FixtureList[0].Shape,
-                                                                                MaterialType.Squares,
-                                                                                Color.Orange, 1f));
-            LoadObstacles();
+            // _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromShape(_rectangle.FixtureList[0].Shape,
+            //                                                                    MaterialType.Squares,
+            //                                                                    Color.Orange, 1f));
+            //LoadObstacles();
         }
 
         private void LoadObstacles()
@@ -140,9 +140,9 @@ namespace XnaTest
             //                   Color.White, _rectangle.Rotation, _rectangleSprite.Origin, 1f,
             //                   SpriteEffects.None, 0f);
 
-            characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(_rectangle.Position.X - characterSprite.Width / 2, _rectangle.Position.Y - characterSprite.Height / 2));
+            // characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(_rectangle.Position.X - characterSprite.Width / 2, _rectangle.Position.Y - characterSprite.Height / 2));
 
-            ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X + " " + _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
+            // ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X + " " + _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
 
             // otkomentiraj ovo za gledat kako izgleda path sisa
             //for (int i = 0; i < _bridgeBodiesL.Count; ++i)
@@ -168,7 +168,7 @@ namespace XnaTest
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            characterSprite.Update();
+            // characterSprite.Update();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
     }
