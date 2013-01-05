@@ -7,20 +7,22 @@ using FarseerPhysics.SamplesFramework;
 using FarseerPhysics.Common;
 using FarseerPhysics.Collision.Shapes;
 using System.Collections.Generic;
+using System;
+using System.Diagnostics;
 
 namespace XnaTest
 {
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
         private Border _border;
-        private Body _rectangle;
-        private Sprite _rectangleSprite;
+        private List<Sprite> presentsSprites;
+        private List<Texture2D> presentTextures;
+        private List<Body> presentBodies;
+        Random random;
         private Texture2D background;
-        private AnimatedSprite characterSprite;
-        private List<Body> _bridgeBodiesL;
-        private List<Body> _bridgeBodiesR;
-        private Sprite _bridgeBox;
 
+        Stopwatch stopwatch;
+        private int generatePresentsInterval = 4; //time in seconds
 
         #region IDemoScreen Members
 
@@ -63,113 +65,84 @@ namespace XnaTest
             base.LoadContent();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
-            //characterSprite = new AnimatedSprite(ScreenManager.Content.Load<Texture2D>("character"), 4, 4);
 
-            World.Gravity = new Vector2(0, 100f);
+            presentsSprites = new List<Sprite>();
+            presentBodies = new List<Body>();
 
-            _border = new Border(World, this, ScreenManager.GraphicsDevice.Viewport);
+            presentTextures = new List<Texture2D>();
+            presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_1_transparent"));
+            presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_2_transparent"));
+            presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_3_transparent"));
+            presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_4_transparent"));
 
-            // _rectangle = BodyFactory.CreateRectangle(World, characterSprite.Width, characterSprite.Height, 10f);
-            // _rectangle.Position = new Vector2(0, -50);
-            // _rectangle.BodyType = BodyType.Dynamic;
+            random = new Random();
 
-            // SetUserAgent(_rectangle, 5f, 1f);
+            World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height);
 
-            // create sprite based on body
-            // _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromShape(_rectangle.FixtureList[0].Shape,
-            //                                                                    MaterialType.Squares,
-            //                                                                    Color.Orange, 1f));
-            //LoadObstacles();
+            // ST: commented for now, because it represent obstacle for presents, we need to figure out if it's even needed
+            // _border = new Border(World, this, ScreenManager.GraphicsDevice.Viewport);
         }
 
-        private void LoadObstacles()
-        {
-            //Vertices box = PolygonTools.CreateRectangle(1f, 10f);
-            //PolygonShape shape = new PolygonShape(box, 30);
-            //_bridgeBox =
-            //   new Sprite(ScreenManager.Assets.TextureFromShape(shape, MaterialType.Dots, Color.SandyBrown, 1f));
-
-            //Path bridgePathL = new Path();
-            //bridgePathL.Add(new Vector2(-400, -50));
-            //bridgePathL.Add(new Vector2(0, 0));
-            //bridgePathL.Closed = false;
-
-            //_bridgeBodiesL = PathManager.EvenlyDistributeShapesAlongPath(World, bridgePathL, shape,
-            //                                                            BodyType.Dynamic, 30);
-
-
-            ////Attach the first and last fixtures to the world
-            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesL[0], new Vector2(0f, -0.5f),
-            //                                      _bridgeBodiesL[0].Position);
-            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesL[_bridgeBodiesL.Count - 1], new Vector2(0, 0.5f),
-            //                                      _bridgeBodiesL[_bridgeBodiesL.Count - 1].Position);
-
-            //PathManager.AttachBodiesWithRevoluteJoint(World, _bridgeBodiesL, new Vector2(0f, -0.5f),
-            //                                          new Vector2(0f, 0.5f),
-            //                                          false, true);
-
-            //Path bridgePathR = new Path();
-            //bridgePathR.Add(new Vector2(350, -50));
-            //bridgePathR.Add(new Vector2(0, 0));
-            //bridgePathR.Closed = false;
-
-            //_bridgeBodiesR = PathManager.EvenlyDistributeShapesAlongPath(World, bridgePathR, shape,
-            //                                                            BodyType.Dynamic, 30);
-
-            //Attach the first and last fixtures to the world
-            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesR[0], new Vector2(0f, -0.5f),
-            //                                      _bridgeBodiesR[0].Position);
-            //JointFactory.CreateFixedRevoluteJoint(World, _bridgeBodiesR[_bridgeBodiesR.Count - 1], new Vector2(0, 0.5f),
-            //                                      _bridgeBodiesR[_bridgeBodiesR.Count - 1].Position);
-
-            //PathManager.AttachBodiesWithRevoluteJoint(World, _bridgeBodiesR, new Vector2(0f, -0.5f),
-            //                                          new Vector2(0f, 0.5f),
-            //                                          false, true);
-
-
-        }
 
         public override void Draw(GameTime gameTime)
         {
 
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
-            ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.Red);
-            // otkomentiraj ovo za gledat kako izgleda model
-            //ScreenManager.SpriteBatch.Draw(_rectangleSprite.Texture, ConvertUnits.ToDisplayUnits(_rectangle.Position),
-            //                   null,
-            //                   Color.White, _rectangle.Rotation, _rectangleSprite.Origin, 1f,
-            //                   SpriteEffects.None, 0f);
+            ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
 
-            // characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(_rectangle.Position.X - characterSprite.Width / 2, _rectangle.Position.Y - characterSprite.Height / 2));
-
-            // ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X + " " + _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
-
-            // otkomentiraj ovo za gledat kako izgleda path sisa
-            //for (int i = 0; i < _bridgeBodiesL.Count; ++i)
-            //{
-            //    ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
-            //                                   ConvertUnits.ToDisplayUnits(_bridgeBodiesL[i].Position), null,
-            //                                   Color.White, _bridgeBodiesL[i].Rotation, _bridgeBox.Origin, 1f,
-            //                                   SpriteEffects.None, 0f);
-            //}
-            //for (int i = 0; i < _bridgeBodiesR.Count; ++i)
-            //{
-            //    ScreenManager.SpriteBatch.Draw(_bridgeBox.Texture,
-            //                                   ConvertUnits.ToDisplayUnits(_bridgeBodiesR[i].Position), null,
-            //                                   Color.White, _bridgeBodiesR[i].Rotation, _bridgeBox.Origin, 1f,
-            //                                   SpriteEffects.None, 0f);
-            //}
+            for (int i = 0; i < presentBodies.Count; ++i)
+            {
+                ScreenManager.SpriteBatch.Draw(presentsSprites[i].Texture, ConvertUnits.ToDisplayUnits(presentBodies[i].Position),
+                                   null,
+                                   Color.White, presentBodies[i].Rotation, presentsSprites[i].Origin, 1f,
+                                   SpriteEffects.None, 0f);
+            }
 
             ScreenManager.SpriteBatch.End();
-            _border.Draw();
+            // ST: uncomment after initialisation is uncommented
+            //_border.Draw();
 
             base.Draw(gameTime);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            // characterSprite.Update();
+            populatePresent();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            
+        }
+
+        private void populatePresent()
+        {
+            if (stopwatch == null)
+            {
+                createPresent();
+            }
+            else
+            {
+                double elapsedTime = stopwatch.ElapsedMilliseconds;
+                // if 10 seconds passed created new present
+                if (elapsedTime / 1000 > generatePresentsInterval)
+                {
+                    createPresent();
+                }
+            }
+
+        }
+
+        private void createPresent()
+        {
+            int textureIndex = random.Next(0, 3);
+            Texture2D presentTexture = presentTextures[textureIndex];
+            Body presentBody = BodyFactory.CreateRectangle(World, presentTexture.Width, presentTexture.Height, 10f);
+            presentBody.Position = new Vector2(random.Next(-ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Width / 2), -ScreenManager.GraphicsDevice.Viewport.Height / 2);
+            presentBody.BodyType = BodyType.Dynamic;
+
+            // create sprite based on body
+            presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
+            presentBodies.Add(presentBody);
+
+            stopwatch = Stopwatch.StartNew();
         }
     }
 }
