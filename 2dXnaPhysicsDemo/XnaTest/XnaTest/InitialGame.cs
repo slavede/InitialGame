@@ -9,12 +9,13 @@ using FarseerPhysics.Collision.Shapes;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
+using XnaTest.Controller;
+using FarseerPhysics.Dynamics.Joints;
 
 namespace XnaTest
 {
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
-        private Border _border;
         private List<Sprite> presentsSprites;
         private List<Texture2D> presentTextures;
         private List<Body> presentBodies;
@@ -23,6 +24,13 @@ namespace XnaTest
 
         Stopwatch stopwatch;
         private int generatePresentsInterval = 4; //time in seconds
+        private AnimatedSprite characterSprite;
+        private Body character;
+        private Sprite groundBodySprite;
+        private Body ground;
+        private KeyboardController charcterPosition;
+        private FixedMouseJoint charcterJoint;
+        private Texture2D circleTexture;
 
         #region IDemoScreen Members
 
@@ -75,12 +83,33 @@ namespace XnaTest
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_3_transparent"));
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_4_transparent"));
 
+            characterSprite = new AnimatedSprite(ScreenManager.Content.Load<Texture2D>("character"), 4, 4);
+            character = BodyFactory.CreateRectangle(World, characterSprite.Width, characterSprite.Height, 10f);
+            //character.Position = new Vector2(0, -50);
+            character.BodyType = BodyType.Dynamic;
+            character.Restitution = 2.0f;
+
+            charcterPosition = new KeyboardController();
+            charcterJoint = new FixedMouseJoint(character, charcterPosition.getLeftHandPosition());
+            //charcterJoint.JointType = JointType.
+            World.AddJoint(charcterJoint);
+            character.Awake = true;
+            charcterJoint.WorldAnchorB = charcterPosition.getLeftHandPosition();
+
+            ground = BodyFactory.CreateRectangle(World,
+                  ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Width * 2f),
+                  20, 1f, ConvertUnits.ToSimUnits(new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 2f, ScreenManager.GraphicsDevice.Viewport.Height / 2f)));
+            ground.Restitution = 0.8f;
+            ground.IsStatic = true;
+
+            groundBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(ground.FixtureList[0].Shape,
+                                                                                MaterialType.Squares,
+                                                                                Color.Orange, 1f));
+            circleTexture = CreateCircle(10);
             random = new Random();
 
             World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height);
-
-            // ST: commented for now, because it represent obstacle for presents, we need to figure out if it's even needed
-            // _border = new Border(World, this, ScreenManager.GraphicsDevice.Viewport);
+            base.EnableCameraControl = false;
         }
 
 
@@ -89,6 +118,14 @@ namespace XnaTest
 
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
+            
+            characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(character.Position.X - characterSprite.Width / 2, character.Position.Y - characterSprite.Height / 2));
+
+            ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
+               groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
+
+
+            ScreenManager.SpriteBatch.Draw(circleTexture, charcterPosition.getLeftHandPosition(), Color.Black);
 
             for (int i = 0; i < presentBodies.Count; ++i)
             {
@@ -99,15 +136,16 @@ namespace XnaTest
             }
 
             ScreenManager.SpriteBatch.End();
-            // ST: uncomment after initialisation is uncommented
-            //_border.Draw();
 
             base.Draw(gameTime);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            characterSprite.Update();
             populatePresent();
+            charcterPosition.HandleInput(gameTime);
+            charcterJoint.WorldAnchorB = charcterPosition.getLeftHandPosition();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             
         }
@@ -143,6 +181,33 @@ namespace XnaTest
             presentBodies.Add(presentBody);
 
             stopwatch = Stopwatch.StartNew();
+        }
+
+        public Texture2D CreateCircle(int radius)
+        {
+            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
+            Texture2D texture = new Texture2D(ScreenManager.GraphicsDevice, outerRadius, outerRadius);
+
+            Color[] data = new Color[outerRadius * outerRadius];
+
+            // Colour the entire texture transparent first.
+            for (int i = 0; i < data.Length; i++)
+                data[i] = Color.Transparent;
+
+            // Work out the minimum step necessary using trigonometry + sine approximation.
+            double angleStep = 1f / radius;
+
+            for (double angle = 0; angle < Math.PI * 2; angle += angleStep)
+            {
+                // Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
+                int x = (int)Math.Round(radius + radius * Math.Cos(angle));
+                int y = (int)Math.Round(radius + radius * Math.Sin(angle));
+
+                data[y * outerRadius + x + 1] = Color.White;
+            }
+
+            texture.SetData(data);
+            return texture;
         }
     }
 }

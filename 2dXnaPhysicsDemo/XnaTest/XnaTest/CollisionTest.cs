@@ -139,8 +139,7 @@ namespace XnaTest
             //                   Color.White, _rectangle.Rotation, _rectangleSprite.Origin, 1f,
             //                   SpriteEffects.None, 0f);
 
-            characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(_rectangle.Position.X-characterSprite.Width/2,_rectangle.Position.Y-characterSprite.Height/2));
-
+            
             ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "width, height: " + _rectangle.Position.X +" "+ _rectangle.Position.Y, new Vector2(0, 130), Color.Black);
 
             // otkomentiraj ovo za gledat kako izgleda path sisa
