@@ -146,6 +146,7 @@ namespace XnaTest
             populatePresent();
             charcterPosition.HandleInput(gameTime);
             charcterJoint.WorldAnchorB = charcterPosition.getLeftHandPosition();
+            updatePresents();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             
         }
@@ -168,6 +169,16 @@ namespace XnaTest
 
         }
 
+        // method checks if any of presents is in basket or it has hit the floor
+        private void updatePresents()
+        {
+            foreach (Body presentBody in presentBodies)
+            {
+                
+            }
+
+        }
+
         private void createPresent()
         {
             int textureIndex = random.Next(0, 3);
@@ -175,12 +186,48 @@ namespace XnaTest
             Body presentBody = BodyFactory.CreateRectangle(World, presentTexture.Width, presentTexture.Height, 10f);
             presentBody.Position = new Vector2(random.Next(-ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Width / 2), -ScreenManager.GraphicsDevice.Viewport.Height / 2);
             presentBody.BodyType = BodyType.Dynamic;
+            presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
 
             // create sprite based on body
             presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
 
             stopwatch = Stopwatch.StartNew();
+        }
+
+        bool presentBody_OnCollision(Fixture fixtureA, Fixture fixtureB, FarseerPhysics.Dynamics.Contacts.Contact contact)
+        {
+            int bodyIdToRemove = -1;
+            Body bodyToRemove = null;
+            if (fixtureA.Body.BodyId == ground.BodyId)
+            {
+                // it has hit the floor
+                bodyIdToRemove = fixtureB.Body.BodyId;
+                bodyToRemove = fixtureB.Body;
+            }
+            else if (fixtureB.Body.BodyId == ground.BodyId) 
+            {
+                // it has hit the floor
+                bodyIdToRemove = fixtureA.Body.BodyId;
+                bodyToRemove = fixtureA.Body;
+            }
+
+            if (bodyIdToRemove != -1)
+            {
+                int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition
+                if (removed_index != -1)
+                {
+                    presentsSprites.RemoveAt(removed_index);
+                    bodyToRemove.Dispose();
+                    return false;
+                }
+                return true;
+                
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public Texture2D CreateCircle(int radius)
