@@ -204,7 +204,7 @@ namespace XnaTest
             presentBody.Position = new Vector2(random.Next(-ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Width / 2), -ScreenManager.GraphicsDevice.Viewport.Height / 2);
             presentBody.BodyType = BodyType.Dynamic;
             presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
-            presentBody.Restitution = 3f;
+            presentBody.Restitution = 2.0f;
             // create sprite based on body
             presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
