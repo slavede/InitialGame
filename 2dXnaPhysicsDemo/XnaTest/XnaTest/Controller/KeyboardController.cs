@@ -48,12 +48,12 @@ namespace XnaTest.Controller
             // Check for input to rotate the camera up and down around the model.
             if (currentKeyboardState.IsKeyDown(Keys.Up))
             {
-                rightHandPosition.Y += time * changeFactor;
+                rightHandPosition.Y -= time * changeFactor;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.Down))
             {
-                rightHandPosition.Y -= time * changeFactor;
+                rightHandPosition.Y += time * changeFactor;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.Right))
@@ -81,8 +81,7 @@ namespace XnaTest.Controller
                 leftHandPosition.X += time * changeFactor;
             }
 
-            if (currentKeyboardState.IsKeyDown(Keys.Left) ||
-                currentKeyboardState.IsKeyDown(Keys.A))
+            if (currentKeyboardState.IsKeyDown(Keys.A))
             {
                 leftHandPosition.X -= time * changeFactor;
             }

@@ -24,12 +24,14 @@ namespace XnaTest
 
         Stopwatch stopwatch;
         private int generatePresentsInterval = 4; //time in seconds
-        private AnimatedSprite characterSprite;
-        private Body character;
+
+        private Body plankBody;
         private Sprite groundBodySprite;
         private Body ground;
-        private KeyboardController charcterPosition;
-        private FixedMouseJoint charcterJoint;
+        private CharacterController characterPosition;
+        private FixedMouseJoint fixedMouseJointL;
+        private FixedMouseJoint fixedMouseJointR;
+        private Sprite plankBodySprite;
         private Texture2D circleTexture;
 
         #region IDemoScreen Members
@@ -83,18 +85,7 @@ namespace XnaTest
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_3_transparent"));
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_4_transparent"));
 
-            characterSprite = new AnimatedSprite(ScreenManager.Content.Load<Texture2D>("character"), 4, 4);
-            character = BodyFactory.CreateRectangle(World, characterSprite.Width, characterSprite.Height, 10f);
-            //character.Position = new Vector2(0, -50);
-            character.BodyType = BodyType.Dynamic;
-            character.Restitution = 2.0f;
-
-            charcterPosition = new KeyboardController();
-            charcterJoint = new FixedMouseJoint(character, charcterPosition.getLeftHandPosition());
-            //charcterJoint.JointType = JointType.
-            World.AddJoint(charcterJoint);
-            character.Awake = true;
-            charcterJoint.WorldAnchorB = charcterPosition.getLeftHandPosition();
+            initPlankBody();
 
             ground = BodyFactory.CreateRectangle(World,
                   ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Width * 2f),
@@ -105,27 +96,53 @@ namespace XnaTest
             groundBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(ground.FixtureList[0].Shape,
                                                                                 MaterialType.Squares,
                                                                                 Color.Orange, 1f));
-            circleTexture = CreateCircle(10);
+            circleTexture = CreateCircle(5);
             random = new Random();
 
             World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height);
             base.EnableCameraControl = false;
         }
 
+        private void initPlankBody()
+        {
+            characterPosition = new KeyboardController();
+            
+            plankBody = BodyFactory.CreateRectangle(World, 300, 10, 1000f);
+            plankBody.BodyType = BodyType.Dynamic;
+            plankBody.Restitution = 1f;
+
+            plankBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(plankBody.FixtureList[0].Shape,
+                                                                                MaterialType.Squares,
+                                                                                Color.Orange, 1f));
+            fixedMouseJointL = new FixedMouseJoint(plankBody, characterPosition.getLeftHandPosition());
+            fixedMouseJointL.MaxForce = 1000.0f * plankBody.Mass;
+            World.AddJoint(fixedMouseJointL);
+            fixedMouseJointR = new FixedMouseJoint(plankBody, characterPosition.getRightHandPosition());
+            fixedMouseJointR.MaxForce = 1000.0f * plankBody.Mass;
+            World.AddJoint(fixedMouseJointR);
+            plankBody.Awake = true;
+
+            fixedMouseJointL.DampingRatio = 1.0f;
+            fixedMouseJointR.DampingRatio = 1.0f;
+
+            fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
+            fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
+        }
 
         public override void Draw(GameTime gameTime)
         {
-
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
-            
-            characterSprite.Draw(ScreenManager.SpriteBatch, new Vector2(character.Position.X - characterSprite.Width / 2, character.Position.Y - characterSprite.Height / 2));
 
             ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
                groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
 
-
-            ScreenManager.SpriteBatch.Draw(circleTexture, charcterPosition.getLeftHandPosition(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(plankBody.Position),
+                               null,
+                               Color.White, plankBody.Rotation, plankBodySprite.Origin, 1f,
+                               SpriteEffects.None, 0f);
+            ScreenManager.SpriteBatch.Draw(circleTexture, characterPosition.getLeftHandPosition(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, characterPosition.getRightHandPosition(), Color.Black);
 
             for (int i = 0; i < presentBodies.Count; ++i)
             {
@@ -142,10 +159,10 @@ namespace XnaTest
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            characterSprite.Update();
             populatePresent();
-            charcterPosition.HandleInput(gameTime);
-            charcterJoint.WorldAnchorB = charcterPosition.getLeftHandPosition();
+            characterPosition.HandleInput(gameTime);
+            fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
+            fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
             updatePresents();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             
@@ -187,7 +204,7 @@ namespace XnaTest
             presentBody.Position = new Vector2(random.Next(-ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Width / 2), -ScreenManager.GraphicsDevice.Viewport.Height / 2);
             presentBody.BodyType = BodyType.Dynamic;
             presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
-
+            presentBody.Restitution = 3f;
             // create sprite based on body
             presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
