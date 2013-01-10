@@ -16,7 +16,7 @@ namespace XnaTest
 {
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
-        private List<Sprite> presentsSprites;
+        private Dictionary<int, Sprite> presentSpriteBodyMapping;
         private List<Texture2D> presentTextures;
         private List<Body> presentBodies;
         Random random;
@@ -76,8 +76,8 @@ namespace XnaTest
 
             background = ScreenManager.Content.Load<Texture2D>("background");
 
-            presentsSprites = new List<Sprite>();
             presentBodies = new List<Body>();
+            presentSpriteBodyMapping = new Dictionary<int, Sprite>();
 
             presentTextures = new List<Texture2D>();
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_1_transparent"));
@@ -144,11 +144,11 @@ namespace XnaTest
             ScreenManager.SpriteBatch.Draw(circleTexture, characterPosition.getLeftHandPosition(), Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, characterPosition.getRightHandPosition(), Color.Black);
 
-            for (int i = 0; i < presentBodies.Count; ++i)
+            foreach (Body body in presentBodies) 
             {
-                ScreenManager.SpriteBatch.Draw(presentsSprites[i].Texture, ConvertUnits.ToDisplayUnits(presentBodies[i].Position),
+                ScreenManager.SpriteBatch.Draw(presentSpriteBodyMapping[body.BodyId].Texture, ConvertUnits.ToDisplayUnits(body.Position),
                                    null,
-                                   Color.White, presentBodies[i].Rotation, presentsSprites[i].Origin, 1f,
+                                   Color.White, body.Rotation, presentSpriteBodyMapping[body.BodyId].Origin, 1f,
                                    SpriteEffects.None, 0f);
             }
 
@@ -206,7 +206,7 @@ namespace XnaTest
             presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
             presentBody.Restitution = 2.0f;
             // create sprite based on body
-            presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
+            presentSpriteBodyMapping.Add(presentBody.BodyId, new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
 
             stopwatch = Stopwatch.StartNew();
@@ -231,10 +231,10 @@ namespace XnaTest
 
             if (bodyIdToRemove != -1)
             {
-                int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition
+                int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition 
                 if (removed_index != -1)
                 {
-                    presentsSprites.RemoveAt(removed_index);
+                    presentSpriteBodyMapping.Remove(removed_index);
                     bodyToRemove.Dispose();
                     return false;
                 }
