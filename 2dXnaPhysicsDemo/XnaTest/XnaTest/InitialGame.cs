@@ -34,7 +34,6 @@ namespace XnaTest
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
 
-        private List<Vector2> explosionLocations;
         private Dictionary<double, Vector2> explosionTimesLocationsMapping;
         private Stopwatch explosionsStopwatch;
         private int explosionStays = 50; // time in miliseconds
@@ -85,7 +84,6 @@ namespace XnaTest
 
             presentBodies = new List<Body>();
             presentSpriteBodyMapping = new Dictionary<int, Sprite>();
-            explosionLocations = new List<Vector2>();
             explosionsStopwatch = Stopwatch.StartNew();
             explosionTimesLocationsMapping = new Dictionary<double, Vector2>();
 
@@ -246,8 +244,6 @@ namespace XnaTest
             if (bodyIdToRemove != -1)
             {
                 explosionTimesLocationsMapping.Add(presentsStopwatch.Elapsed.Milliseconds, new Vector2(bodyToRemove.Position.X - presentSpriteBodyMapping[bodyIdToRemove].Texture.Width / 2, bodyToRemove.Position.Y - presentSpriteBodyMapping[bodyIdToRemove].Texture.Height / 2));
-                // explosionLocations.Add(new Vector2(bodyToRemove.Position.X - presentSpriteBodyMapping[bodyIdToRemove].Texture.Width / 2, bodyToRemove.Position.Y - presentSpriteBodyMapping[bodyIdToRemove].Texture.Height / 2));
-
                 int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition 
                 
                 if (removed_index != -1)
