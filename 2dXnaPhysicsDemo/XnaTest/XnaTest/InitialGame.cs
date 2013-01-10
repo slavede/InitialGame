@@ -22,7 +22,7 @@ namespace XnaTest
         Random random;
         private Texture2D background;
 
-        Stopwatch stopwatch;
+        Stopwatch presentsStopwatch;
         private int generatePresentsInterval = 4; //time in seconds
 
         private Body plankBody;
@@ -33,6 +33,12 @@ namespace XnaTest
         private FixedMouseJoint fixedMouseJointR;
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
+
+        private List<Vector2> explosionLocations;
+        private Dictionary<double, Vector2> explosionTimesLocationsMapping;
+        private Stopwatch explosionsStopwatch;
+        private int explosionStays = 50; // time in miliseconds
+        private Texture2D explosionTexture;
 
         #region IDemoScreen Members
 
@@ -75,9 +81,13 @@ namespace XnaTest
             base.LoadContent();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
+            explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
 
             presentBodies = new List<Body>();
             presentSpriteBodyMapping = new Dictionary<int, Sprite>();
+            explosionLocations = new List<Vector2>();
+            explosionsStopwatch = Stopwatch.StartNew();
+            explosionTimesLocationsMapping = new Dictionary<double, Vector2>();
 
             presentTextures = new List<Texture2D>();
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_1_transparent"));
@@ -152,6 +162,21 @@ namespace XnaTest
                                    SpriteEffects.None, 0f);
             }
 
+            List<double> explosionsToRemove = new List<double>();
+            foreach (double timestamp in explosionTimesLocationsMapping.Keys)
+            {
+                ScreenManager.SpriteBatch.Draw(explosionTexture, new Rectangle((int)explosionTimesLocationsMapping[timestamp].X, (int)explosionTimesLocationsMapping[timestamp].Y, explosionTexture.Width, explosionTexture.Height), Color.White);
+                if (explosionsStopwatch.Elapsed.Milliseconds - timestamp > explosionStays)
+                {
+                    explosionsToRemove.Add(timestamp);
+                }
+            }
+
+            foreach (double timestamp in explosionsToRemove) 
+            {
+                explosionTimesLocationsMapping.Remove(timestamp);
+            }
+
             ScreenManager.SpriteBatch.End();
 
             base.Draw(gameTime);
@@ -170,13 +195,13 @@ namespace XnaTest
 
         private void populatePresent()
         {
-            if (stopwatch == null)
+            if (presentsStopwatch == null)
             {
                 createPresent();
             }
             else
             {
-                double elapsedTime = stopwatch.ElapsedMilliseconds;
+                double elapsedTime = presentsStopwatch.ElapsedMilliseconds;
                 if (elapsedTime / 1000 > generatePresentsInterval)
                 {
                     createPresent();
@@ -198,7 +223,7 @@ namespace XnaTest
             presentSpriteBodyMapping.Add(presentBody.BodyId, new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
 
-            stopwatch = Stopwatch.StartNew();
+            presentsStopwatch = Stopwatch.StartNew();
         }
 
         bool presentBody_OnCollision(Fixture fixtureA, Fixture fixtureB, FarseerPhysics.Dynamics.Contacts.Contact contact)
@@ -220,7 +245,11 @@ namespace XnaTest
 
             if (bodyIdToRemove != -1)
             {
+                explosionTimesLocationsMapping.Add(presentsStopwatch.Elapsed.Milliseconds, new Vector2(bodyToRemove.Position.X - presentSpriteBodyMapping[bodyIdToRemove].Texture.Width / 2, bodyToRemove.Position.Y - presentSpriteBodyMapping[bodyIdToRemove].Texture.Height / 2));
+                // explosionLocations.Add(new Vector2(bodyToRemove.Position.X - presentSpriteBodyMapping[bodyIdToRemove].Texture.Width / 2, bodyToRemove.Position.Y - presentSpriteBodyMapping[bodyIdToRemove].Texture.Height / 2));
+
                 int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition 
+                
                 if (removed_index != -1)
                 {
                     presentSpriteBodyMapping.Remove(removed_index);
