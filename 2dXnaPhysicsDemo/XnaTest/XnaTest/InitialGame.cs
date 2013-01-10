@@ -160,12 +160,12 @@ namespace XnaTest
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             populatePresent();
+
             characterPosition.HandleInput(gameTime);
             fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
             fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
-            updatePresents();
+
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-            
         }
 
         private void populatePresent()
@@ -177,21 +177,10 @@ namespace XnaTest
             else
             {
                 double elapsedTime = stopwatch.ElapsedMilliseconds;
-                // if 10 seconds passed created new present
                 if (elapsedTime / 1000 > generatePresentsInterval)
                 {
                     createPresent();
                 }
-            }
-
-        }
-
-        // method checks if any of presents is in basket or it has hit the floor
-        private void updatePresents()
-        {
-            foreach (Body presentBody in presentBodies)
-            {
-                
             }
 
         }
