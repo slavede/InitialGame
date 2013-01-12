@@ -16,13 +16,13 @@ namespace XnaTest
 {
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
-        private List<Sprite> presentsSprites;
+        private Dictionary<int, Sprite> presentSpriteBodyMapping;
         private List<Texture2D> presentTextures;
         private List<Body> presentBodies;
         Random random;
         private Texture2D background;
 
-        Stopwatch stopwatch;
+        Stopwatch presentsStopwatch;
         private int generatePresentsInterval = 4; //time in seconds
         private float plankHeightPosition = 0f;
         private int plankLength = 300;
@@ -37,6 +37,11 @@ namespace XnaTest
         private FixedMouseJoint fixedMouseJointR;
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
+
+        private Dictionary<double, Vector2> explosionTimesLocationsMapping;
+        private Stopwatch explosionsStopwatch;
+        private int explosionStays = 50; // time in miliseconds
+        private Texture2D explosionTexture;
 
         #region IDemoScreen Members
 
@@ -79,9 +84,12 @@ namespace XnaTest
             base.LoadContent();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
+            explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
 
-            presentsSprites = new List<Sprite>();
             presentBodies = new List<Body>();
+            presentSpriteBodyMapping = new Dictionary<int, Sprite>();
+            explosionsStopwatch = Stopwatch.StartNew();
+            explosionTimesLocationsMapping = new Dictionary<double, Vector2>();
 
             presentTextures = new List<Texture2D>();
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_1_transparent"));
@@ -166,12 +174,27 @@ namespace XnaTest
             ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
 
-            for (int i = 0; i < presentBodies.Count; ++i)
+            foreach (Body body in presentBodies) 
             {
-                ScreenManager.SpriteBatch.Draw(presentsSprites[i].Texture, ConvertUnits.ToDisplayUnits(presentBodies[i].Position),
+                ScreenManager.SpriteBatch.Draw(presentSpriteBodyMapping[body.BodyId].Texture, ConvertUnits.ToDisplayUnits(body.Position),
                                    null,
-                                   Color.White, presentBodies[i].Rotation, presentsSprites[i].Origin, 1f,
+                                   Color.White, body.Rotation, presentSpriteBodyMapping[body.BodyId].Origin, 1f,
                                    SpriteEffects.None, 0f);
+            }
+
+            List<double> explosionsToRemove = new List<double>();
+            foreach (double timestamp in explosionTimesLocationsMapping.Keys)
+            {
+                ScreenManager.SpriteBatch.Draw(explosionTexture, new Rectangle((int)explosionTimesLocationsMapping[timestamp].X, (int)explosionTimesLocationsMapping[timestamp].Y, explosionTexture.Width, explosionTexture.Height), Color.White);
+                if (explosionsStopwatch.Elapsed.Milliseconds - timestamp > explosionStays)
+                {
+                    explosionsToRemove.Add(timestamp);
+                }
+            }
+
+            foreach (double timestamp in explosionsToRemove) 
+            {
+                explosionTimesLocationsMapping.Remove(timestamp);
             }
 
             ScreenManager.SpriteBatch.End();
@@ -182,39 +205,28 @@ namespace XnaTest
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             populatePresent();
+
             characterPosition.HandleInput(gameTime);
             updatePlankPositionVectors();
             fixedMouseJointL.WorldAnchorB = leftPlankPosition;
             fixedMouseJointR.WorldAnchorB = centralPlankPosition;
-            updatePresents();
+
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-            
         }
 
         private void populatePresent()
         {
-            if (stopwatch == null)
+            if (presentsStopwatch == null)
             {
                 createPresent();
             }
             else
             {
-                double elapsedTime = stopwatch.ElapsedMilliseconds;
-                // if 10 seconds passed created new present
+                double elapsedTime = presentsStopwatch.ElapsedMilliseconds;
                 if (elapsedTime / 1000 > generatePresentsInterval)
                 {
                     createPresent();
                 }
-            }
-
-        }
-
-        // method checks if any of presents is in basket or it has hit the floor
-        private void updatePresents()
-        {
-            foreach (Body presentBody in presentBodies)
-            {
-                
             }
 
         }
@@ -230,10 +242,10 @@ namespace XnaTest
             presentBody.Restitution = 2.0f;
 
             // create sprite based on body
-            presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
+            presentSpriteBodyMapping.Add(presentBody.BodyId, new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
 
-            stopwatch = Stopwatch.StartNew();
+            presentsStopwatch = Stopwatch.StartNew();
         }
 
         bool presentBody_OnCollision(Fixture fixtureA, Fixture fixtureB, FarseerPhysics.Dynamics.Contacts.Contact contact)
@@ -255,10 +267,12 @@ namespace XnaTest
 
             if (bodyIdToRemove != -1)
             {
-                int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition
+                explosionTimesLocationsMapping.Add(presentsStopwatch.Elapsed.Milliseconds, new Vector2(bodyToRemove.Position.X - presentSpriteBodyMapping[bodyIdToRemove].Texture.Width / 2, bodyToRemove.Position.Y - presentSpriteBodyMapping[bodyIdToRemove].Texture.Height / 2));
+                int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition 
+                
                 if (removed_index != -1)
                 {
-                    presentsSprites.RemoveAt(removed_index);
+                    presentSpriteBodyMapping.Remove(removed_index);
                     bodyToRemove.Dispose();
                     return false;
                 }
