@@ -24,11 +24,15 @@ namespace XnaTest
 
         Stopwatch stopwatch;
         private int generatePresentsInterval = 4; //time in seconds
+        private float plankHeightPosition = 0f;
+        private int plankLength = 300;
 
         private Body plankBody;
         private Sprite groundBodySprite;
         private Body ground;
         private CharacterController characterPosition;
+        private Vector2 centralPlankPosition;
+        private Vector2 leftPlankPosition;
         private FixedMouseJoint fixedMouseJointL;
         private FixedMouseJoint fixedMouseJointR;
         private Sprite plankBodySprite;
@@ -103,21 +107,36 @@ namespace XnaTest
             base.EnableCameraControl = false;
         }
 
+        private void updatePlankPositionVectors()
+        {
+            //TODO fetch constants from plank body
+            centralPlankPosition.X = characterPosition.getX();
+            centralPlankPosition.Y = plankHeightPosition;
+            leftPlankPosition.X = characterPosition.getX() - plankLength / 2;
+            leftPlankPosition.Y = plankHeightPosition + characterPosition.getDeltaY();
+        }
+
         private void initPlankBody()
         {
-            characterPosition = new KeyboardController();
             
-            plankBody = BodyFactory.CreateRectangle(World, 300, 10, 1000f);
+            centralPlankPosition = new Vector2();
+            leftPlankPosition = new Vector2();
+            characterPosition = new KeyboardController(0, 0);
+
+            updatePlankPositionVectors();
+
+            plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 1000f);
+          
             plankBody.BodyType = BodyType.Dynamic;
             plankBody.Restitution = 1f;
 
             plankBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(plankBody.FixtureList[0].Shape,
                                                                                 MaterialType.Squares,
                                                                                 Color.Orange, 1f));
-            fixedMouseJointL = new FixedMouseJoint(plankBody, characterPosition.getLeftHandPosition());
+            fixedMouseJointL = new FixedMouseJoint(plankBody, leftPlankPosition);
             fixedMouseJointL.MaxForce = 1000.0f * plankBody.Mass;
             World.AddJoint(fixedMouseJointL);
-            fixedMouseJointR = new FixedMouseJoint(plankBody, characterPosition.getRightHandPosition());
+            fixedMouseJointR = new FixedMouseJoint(plankBody, centralPlankPosition);
             fixedMouseJointR.MaxForce = 1000.0f * plankBody.Mass;
             World.AddJoint(fixedMouseJointR);
             plankBody.Awake = true;
@@ -125,13 +144,16 @@ namespace XnaTest
             fixedMouseJointL.DampingRatio = 1.0f;
             fixedMouseJointR.DampingRatio = 1.0f;
 
-            fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
-            fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
+            //fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
+            //fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
         }
 
         public override void Draw(GameTime gameTime)
         {
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
+
+            ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "fixures count: "+plankBody.FixtureList.Count, new Vector2(0, 0), Color.White);
+
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
 
             ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
@@ -141,8 +163,8 @@ namespace XnaTest
                                null,
                                Color.White, plankBody.Rotation, plankBodySprite.Origin, 1f,
                                SpriteEffects.None, 0f);
-            ScreenManager.SpriteBatch.Draw(circleTexture, characterPosition.getLeftHandPosition(), Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, characterPosition.getRightHandPosition(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
 
             for (int i = 0; i < presentBodies.Count; ++i)
             {
@@ -161,8 +183,9 @@ namespace XnaTest
         {
             populatePresent();
             characterPosition.HandleInput(gameTime);
-            fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
-            fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
+            updatePlankPositionVectors();
+            fixedMouseJointL.WorldAnchorB = leftPlankPosition;
+            fixedMouseJointR.WorldAnchorB = centralPlankPosition;
             updatePresents();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             
@@ -200,11 +223,12 @@ namespace XnaTest
         {
             int textureIndex = random.Next(0, 3);
             Texture2D presentTexture = presentTextures[textureIndex];
-            Body presentBody = BodyFactory.CreateRectangle(World, presentTexture.Width, presentTexture.Height, 10f);
+            Body presentBody = BodyFactory.CreateRectangle(World, presentTexture.Width, presentTexture.Height, 100f);
             presentBody.Position = new Vector2(random.Next(-ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Width / 2), -ScreenManager.GraphicsDevice.Viewport.Height / 2);
             presentBody.BodyType = BodyType.Dynamic;
             presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
             presentBody.Restitution = 2.0f;
+
             // create sprite based on body
             presentsSprites.Add(new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);

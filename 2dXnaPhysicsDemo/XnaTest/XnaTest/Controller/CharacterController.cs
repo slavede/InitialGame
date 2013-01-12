@@ -8,8 +8,14 @@ namespace XnaTest.Controller
 {
     interface CharacterController
     {
-        Vector2 getLeftHandPosition();
-        Vector2 getRightHandPosition();
+        float getX();
+
+        /**
+         * if 0, plank will be paralel with the ground
+         * 
+         */
+        float getDeltaY();
+
         void HandleInput(GameTime gameTime);
     }
 }

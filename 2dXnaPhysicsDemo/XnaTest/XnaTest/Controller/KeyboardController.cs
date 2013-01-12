@@ -9,28 +9,28 @@ namespace XnaTest.Controller
 {
     class KeyboardController : CharacterController
     {
-        public KeyboardController()
+        public KeyboardController(float x, float y)
         {
-            leftHandPosition = initLeft;
-            rightHandPosition = initRight;
+            this.x = x;
+            this.y = y;
+            initX = x;
+            initY = y;
         }
 
-        private Vector2 initLeft = new Vector2(-20, 0);
-        private Vector2 initRight = new Vector2(20, 0);
-        private Vector2 leftHandPosition;
-        private Vector2 rightHandPosition;
+        private float x;
+        private float y;
+        private float initX;
+        private float initY;
         private float changeFactor = 0.1f;
 
-        public Vector2 getLeftHandPosition()
+        public float getX()
         {
-            return leftHandPosition;
+            return x;
         }
-        public Vector2 getRightHandPosition()
+        public float getDeltaY()
         {
-            return rightHandPosition;
+            return y;
         }
-
-
         
 
         //public KeyboardController(KeyboardState keyboardState)
@@ -48,51 +48,31 @@ namespace XnaTest.Controller
             // Check for input to rotate the camera up and down around the model.
             if (currentKeyboardState.IsKeyDown(Keys.Up))
             {
-                rightHandPosition.Y -= time * changeFactor;
+                y -= time * changeFactor;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.Down))
             {
-                rightHandPosition.Y += time * changeFactor;
+                y += time * changeFactor;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.Right))
             {
-                rightHandPosition.X += time * changeFactor;
+                x += time * changeFactor;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.Left))
             {
-                rightHandPosition.X -= time * changeFactor;
-            }
-
-            if (currentKeyboardState.IsKeyDown(Keys.W))
-            {
-                leftHandPosition.Y -= time * changeFactor;
-            }
-
-            if (currentKeyboardState.IsKeyDown(Keys.S))
-            {
-                leftHandPosition.Y += time * changeFactor;
-            }
-
-            if (currentKeyboardState.IsKeyDown(Keys.D))
-            {
-                leftHandPosition.X += time * changeFactor;
-            }
-
-            if (currentKeyboardState.IsKeyDown(Keys.A))
-            {
-                leftHandPosition.X -= time * changeFactor;
+                x -= time * changeFactor;
             }
 
             if (currentKeyboardState.IsKeyDown(Keys.R))
             {
-                leftHandPosition = initLeft;
-                rightHandPosition = initRight;
+                x = initX;
+                y = initY;
             }
 
-            Console.Out.WriteLine(leftHandPosition + " " + rightHandPosition);
+            //Console.Out.WriteLine(leftHandPosition + " " + rightHandPosition);
         }
     }
 }
