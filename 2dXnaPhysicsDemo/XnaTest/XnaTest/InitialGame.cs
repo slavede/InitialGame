@@ -11,6 +11,7 @@ using System;
 using System.Diagnostics;
 using XnaTest.Controller;
 using FarseerPhysics.Dynamics.Joints;
+using Microsoft.Kinect;
 
 namespace XnaTest
 {
@@ -42,6 +43,12 @@ namespace XnaTest
         private Stopwatch explosionsStopwatch;
         private int explosionStays = 50; // time in miliseconds
         private Texture2D explosionTexture;
+
+        KinectSensor kinect;
+        Skeleton[] skeletonData;
+        Skeleton skeleton;
+        private Texture2D jointTexture;
+
 
         #region IDemoScreen Members
 
@@ -83,6 +90,11 @@ namespace XnaTest
         {
             base.LoadContent();
 
+            kinect = KinectSensor.KinectSensors[0];
+            kinect.SkeletonStream.Enable();
+            kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
+            kinect.Start();
+
             background = ScreenManager.Content.Load<Texture2D>("background");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
 
@@ -112,7 +124,40 @@ namespace XnaTest
             random = new Random();
 
             World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height);
+
+            jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
+
             base.EnableCameraControl = false;
+        }
+
+        void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        {
+            using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
+            {
+                if (skeletonFrame != null)
+                {
+                    if ((skeletonData == null) || (this.skeletonData.Length != skeletonFrame.SkeletonArrayLength))
+                    {
+                        this.skeletonData = new Skeleton[skeletonFrame.SkeletonArrayLength];
+                    }
+
+                    //Copy the skeleton data to our array
+                    skeletonFrame.CopySkeletonDataTo(this.skeletonData);
+                }
+            }
+
+            if (skeletonData != null)
+            {
+                foreach (Skeleton skel in skeletonData)
+                {
+                    if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                    {
+                        skeleton = skel;
+                        ((KinectController)characterPosition).UpdatePositions(skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight], 
+                            new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
+                    }
+                }
+            }
         }
 
         private void updatePlankPositionVectors()
@@ -129,7 +174,8 @@ namespace XnaTest
             
             centralPlankPosition = new Vector2();
             leftPlankPosition = new Vector2();
-            characterPosition = new KeyboardController(0, 0);
+            //characterPosition = new KeyboardController(0, 0);
+            characterPosition = new KinectController(0, 0, 0);
 
             updatePlankPositionVectors();
 
@@ -154,6 +200,20 @@ namespace XnaTest
 
             //fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
             //fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
+        }
+
+        private void DrawSkeleton(SpriteBatch spriteBatch, Vector2 resolution, Texture2D img)
+        {
+            if (skeleton != null)
+            {
+                foreach (Microsoft.Kinect.Joint joint in skeleton.Joints)
+                {
+                    //float xPosition = joint.Position.X - ScreenManager.GraphicsDevice.Viewport.Width / 2;
+                    //float yPosition = joint.Position.Y - ScreenManager.GraphicsDevice.Viewport.Height / 2;
+                    Vector2 position = new Vector2((((0.5f * joint.Position.X) + 0.5f) * (resolution.X)) - ScreenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * joint.Position.Y) + 0.5f) * (resolution.Y)) - ScreenManager.GraphicsDevice.Viewport.Height / 2);
+                    spriteBatch.Draw(img, new Rectangle(Convert.ToInt32(position.X), Convert.ToInt32(position.Y), 10, 10), Color.Red);
+                }
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -182,6 +242,8 @@ namespace XnaTest
                                    SpriteEffects.None, 0f);
             }
 
+
+
             List<double> explosionsToRemove = new List<double>();
             foreach (double timestamp in explosionTimesLocationsMapping.Keys)
             {
@@ -197,6 +259,9 @@ namespace XnaTest
                 explosionTimesLocationsMapping.Remove(timestamp);
             }
 
+            // Slaven, just for testing
+            //DrawSkeleton(ScreenManager.SpriteBatch, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), jointTexture);
+
             ScreenManager.SpriteBatch.End();
 
             base.Draw(gameTime);
@@ -206,7 +271,7 @@ namespace XnaTest
         {
             populatePresent();
 
-            characterPosition.HandleInput(gameTime);
+            //characterPosition.HandleInput(gameTime);
             updatePlankPositionVectors();
             fixedMouseJointL.WorldAnchorB = leftPlankPosition;
             fixedMouseJointR.WorldAnchorB = centralPlankPosition;
@@ -280,7 +345,7 @@ namespace XnaTest
                         explosionTime++;
                     }
                 }
-                while (explosionTimesLocationsMapping[explosionTime] == null);
+                while (explosionTimesLocationsMapping.ContainsKey(explosionTime));
 
                 int removed_index = presentBodies.RemoveAll(body => body.BodyId == bodyIdToRemove) - 1; // remove by condition 
                 

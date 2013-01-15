@@ -112,6 +112,7 @@
     <Compile Include="AnimatedSprite.cs" />
     <Compile Include="Controller\CharacterController.cs" />
     <Compile Include="Controller\KeyboardController.cs" />
+    <Compile Include="Controller\KinectController.cs" />
     <Compile Include="InitialGame.cs" />
     <Compile Include="Physics\Drawing\AssetCreator.cs" />
     <Compile Include="Physics\BackgroundScreen.cs" />
