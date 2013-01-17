@@ -12,6 +12,7 @@ using System.Diagnostics;
 using XnaTest.Controller;
 using FarseerPhysics.Dynamics.Joints;
 using Microsoft.Kinect;
+using Microsoft.Xna.Framework.Input;
 
 namespace XnaTest
 {
@@ -34,7 +35,9 @@ namespace XnaTest
         private CharacterController characterPosition;
         private Vector2 centralPlankPosition;
         private Vector2 leftPlankPosition;
+        private Vector2 rightPlankPosition;
         private FixedMouseJoint fixedMouseJointL;
+        private FixedMouseJoint fixedMouseJointC;
         private FixedMouseJoint fixedMouseJointR;
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
@@ -49,6 +52,14 @@ namespace XnaTest
         Skeleton skeleton;
         private Texture2D jointTexture;
 
+        Model myModel;
+        // Set the position of the model in world space, and set the rotation.
+        Vector3 modelPosition = Vector3.Zero;
+        float modelRotation = 0.0f;
+        // Set the position of the camera in world space, for our view matrix.
+        Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 5000);
+        // The aspect ratio determines how to scale 3d to 2d projection.
+        float aspectRatio;
 
         #region IDemoScreen Members
 
@@ -94,6 +105,10 @@ namespace XnaTest
             kinect.SkeletonStream.Enable();
             kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
             kinect.Start();
+
+            aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
+            (float)ScreenManager.GraphicsDevice.Viewport.Height;
+            myModel = ScreenManager.Content.Load<Model>("Models\\p1_wedge");
 
             background = ScreenManager.Content.Load<Texture2D>("background");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
@@ -167,6 +182,8 @@ namespace XnaTest
             centralPlankPosition.Y = plankHeightPosition;
             leftPlankPosition.X = characterPosition.getX() - plankLength / 2;
             leftPlankPosition.Y = plankHeightPosition + characterPosition.getDeltaY();
+            rightPlankPosition.X = characterPosition.getX() + plankLength / 2;
+            rightPlankPosition.Y = plankHeightPosition - characterPosition.getDeltaY();
         }
 
         private void initPlankBody()
@@ -174,6 +191,7 @@ namespace XnaTest
             
             centralPlankPosition = new Vector2();
             leftPlankPosition = new Vector2();
+            rightPlankPosition = new Vector2();
             //characterPosition = new KeyboardController(0, 0);
             characterPosition = new KinectController(0, 0, 0);
 
@@ -190,12 +208,16 @@ namespace XnaTest
             fixedMouseJointL = new FixedMouseJoint(plankBody, leftPlankPosition);
             fixedMouseJointL.MaxForce = 1000.0f * plankBody.Mass;
             World.AddJoint(fixedMouseJointL);
-            fixedMouseJointR = new FixedMouseJoint(plankBody, centralPlankPosition);
+            fixedMouseJointC = new FixedMouseJoint(plankBody, centralPlankPosition);
+            fixedMouseJointC.MaxForce = 1000.0f * plankBody.Mass;
+            World.AddJoint(fixedMouseJointC);
+            fixedMouseJointR = new FixedMouseJoint(plankBody, rightPlankPosition);
             fixedMouseJointR.MaxForce = 1000.0f * plankBody.Mass;
             World.AddJoint(fixedMouseJointR);
             plankBody.Awake = true;
 
             fixedMouseJointL.DampingRatio = 1.0f;
+            fixedMouseJointC.DampingRatio = 1.0f;
             fixedMouseJointR.DampingRatio = 1.0f;
 
             //fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
@@ -216,11 +238,38 @@ namespace XnaTest
             }
         }
 
+        private void draw3DModel()
+        {
+            // Draw the model (to the rendertarget)
+            Matrix[] transforms = new Matrix[myModel.Bones.Count];
+            myModel.CopyAbsoluteBoneTransformsTo(transforms);
+
+            // Draw the model. A model can have multiple meshes, so loop.
+            foreach (ModelMesh mesh in myModel.Meshes)
+            {
+                // This is where the mesh orientation is set, as well 
+                // as our camera and projection.
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.World = transforms[mesh.ParentBone.Index] *
+                        Matrix.CreateRotationY(modelRotation)
+                        * Matrix.CreateTranslation(modelPosition);
+                    effect.View = Matrix.CreateLookAt(cameraPosition,
+                        Vector3.Zero,
+                        Vector3.Up);
+                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(
+                        MathHelper.ToRadians(45.0f), aspectRatio,
+                        1.0f, 10000.0f);
+                    effect.EnableDefaultLighting();
+                }
+                // Draw the mesh, using the effects set above.
+                mesh.Draw();
+            }
+        }
+
         public override void Draw(GameTime gameTime)
         {
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
-
-            ScreenManager.SpriteBatch.DrawString(ScreenManager.Content.Load<SpriteFont>("Font"), "fixures count: "+plankBody.FixtureList.Count, new Vector2(0, 0), Color.White);
 
             ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
 
@@ -233,6 +282,7 @@ namespace XnaTest
                                SpriteEffects.None, 0f);
             ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, rightPlankPosition, Color.Black);
 
             foreach (Body body in presentBodies) 
             {
@@ -261,8 +311,10 @@ namespace XnaTest
 
             // Slaven, just for testing
             DrawSkeleton(ScreenManager.SpriteBatch, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), jointTexture);
-
+            
             ScreenManager.SpriteBatch.End();
+
+            draw3DModel();
 
             base.Draw(gameTime);
         }
@@ -271,12 +323,21 @@ namespace XnaTest
         {
             populatePresent();
 
+            update3DModel(gameTime);
             //characterPosition.HandleInput(gameTime);
             updatePlankPositionVectors();
             fixedMouseJointL.WorldAnchorB = leftPlankPosition;
-            fixedMouseJointR.WorldAnchorB = centralPlankPosition;
+            fixedMouseJointC.WorldAnchorB = centralPlankPosition;
+            fixedMouseJointR.WorldAnchorB = rightPlankPosition;
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        }
+
+        private void update3DModel(GameTime gameTime)
+        {
+            modelPosition = new Vector3(plankBody.Position.X, plankBody.Position.Y, 0);
+            modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
+                MathHelper.ToRadians(0.1f);
         }
 
         private void populatePresent()
@@ -390,5 +451,5 @@ namespace XnaTest
             texture.SetData(data);
             return texture;
         }
-    }
+}
 }
