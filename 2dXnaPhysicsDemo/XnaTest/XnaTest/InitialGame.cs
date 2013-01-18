@@ -90,10 +90,10 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            kinect = KinectSensor.KinectSensors[0];
-            kinect.SkeletonStream.Enable();
-            kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
-            kinect.Start();
+            //kinect = KinectSensor.KinectSensors[0];
+            //kinect.SkeletonStream.Enable();
+            //kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
+            //kinect.Start();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
@@ -174,8 +174,8 @@ namespace XnaTest
             
             centralPlankPosition = new Vector2();
             leftPlankPosition = new Vector2();
-            //characterPosition = new KeyboardController(0, 0);
-            characterPosition = new KinectController(0, 0, 0);
+            characterPosition = new KeyboardController(0, 0);
+            //characterPosition = new KinectController(0, 0, 0);
 
             updatePlankPositionVectors();
 
@@ -271,7 +271,7 @@ namespace XnaTest
         {
             populatePresent();
 
-            //characterPosition.HandleInput(gameTime);
+            characterPosition.HandleInput(gameTime);
             updatePlankPositionVectors();
             fixedMouseJointL.WorldAnchorB = leftPlankPosition;
             fixedMouseJointR.WorldAnchorB = centralPlankPosition;
