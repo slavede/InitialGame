@@ -12,26 +12,21 @@ namespace XnaTest.Controller
         private float x;
         private float yLeftArm;
         private float yRightArm;
-        private float initY;
-        private float changeFactor = 0.1f;
-
-
 
         public KinectController(float x, float yLeftArm, float yRightArm)
         {
             this.x = x;
             this.yLeftArm = yLeftArm;
             this.yRightArm = yRightArm;
-
-
         }
 
-        public void UpdatePositions(Joint leftHandJointPosition, Joint rightHandJointPosition, Vector2 resolution)
+        public void UpdatePositions(Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution)
         {
 
             yLeftArm = (((-0.5f * leftHandJointPosition.Position.Y) + 0.5f) * (resolution.Y)) - resolution.Y / 2;
             yRightArm = (((-0.5f * rightHandJointPosition.Position.Y) + 0.5f) * (resolution.Y)) - resolution.Y / 2;
-            
+
+            x += (((-0.5f * centerShoulderJoint.Position.X) + 0.5f) * (resolution.X)) - (((-0.5f * headJoint.Position.X) + 0.5f) * (resolution.X));
         }
 
         public float getX()

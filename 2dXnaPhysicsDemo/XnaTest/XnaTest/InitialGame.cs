@@ -168,7 +168,9 @@ namespace XnaTest
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         skeleton = skel;
-                        ((KinectController)characterPosition).UpdatePositions(skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight], 
+                        ((KinectController)characterPosition).UpdatePositions(
+                            skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
+                            skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
                             new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
                     }
                 }
