@@ -13,6 +13,9 @@ namespace XnaTest.Controller
         private float yLeftArm;
         private float yRightArm;
 
+        private float yChangeFactor = 0.5f;
+        private float xChangeFactor = 2f;
+
         public KinectController(float x, float yLeftArm, float yRightArm)
         {
             this.x = x;
@@ -20,13 +23,14 @@ namespace XnaTest.Controller
             this.yRightArm = yRightArm;
         }
 
-        public void UpdatePositions(Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution)
+        public void UpdatePositions(GameTime gameTime, Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution)
         {
-
+            float time = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             yLeftArm = (((-0.5f * leftHandJointPosition.Position.Y) + 0.5f) * (resolution.Y)) - resolution.Y / 2;
             yRightArm = (((-0.5f * rightHandJointPosition.Position.Y) + 0.5f) * (resolution.Y)) - resolution.Y / 2;
 
-            x += (((-0.5f * centerShoulderJoint.Position.X) + 0.5f) * (resolution.X)) - (((-0.5f * headJoint.Position.X) + 0.5f) * (resolution.X));
+
+            x += ((headJoint.Position.X - centerShoulderJoint.Position.X) * time * xChangeFactor);
         }
 
         public float getX()
@@ -36,7 +40,7 @@ namespace XnaTest.Controller
 
         public float getDeltaY()
         {
-            return yLeftArm - yRightArm;
+            return (yLeftArm - yRightArm) * yChangeFactor;
         }
 
         public void HandleInput(Microsoft.Xna.Framework.GameTime gameTime)
