@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Kinect;
 
-namespace XnaTest.Controller
+namespace XnaTest.Character.Controller
 {
     public class KeyboardController : CharacterController
     {

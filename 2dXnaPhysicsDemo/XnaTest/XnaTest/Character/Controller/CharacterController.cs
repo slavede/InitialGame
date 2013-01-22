@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Kinect;
 
-namespace XnaTest.Controller
+namespace XnaTest.Character.Controller
 {
     interface CharacterController
     {

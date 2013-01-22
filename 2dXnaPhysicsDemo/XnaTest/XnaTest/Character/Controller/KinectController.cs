@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 
-namespace XnaTest.Controller
+namespace XnaTest.Character.Controller
 {
     public class KinectController : CharacterController
     {

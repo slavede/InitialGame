@@ -9,10 +9,11 @@ using FarseerPhysics.Collision.Shapes;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
-using XnaTest.Controller;
 using FarseerPhysics.Dynamics.Joints;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework.Input;
+using XnaTest.Character;
+using XnaTest.Character.Controller;
 
 namespace XnaTest
 {
@@ -27,18 +28,21 @@ namespace XnaTest
         Stopwatch presentsStopwatch;
         private int generatePresentsInterval = 4; //time in seconds
         private float plankHeightPosition = 0f;
-        private int plankLength = 300;
+        private int plankLength = 100;
 
-        private Body plankBody;
         private Sprite groundBodySprite;
         private Body ground;
-        private CharacterController characterPosition;
-        private Vector2 centralPlankPosition;
-        private Vector2 leftPlankPosition;
-        private Vector2 rightPlankPosition;
-        private FixedMouseJoint fixedMouseJointL;
-        private FixedMouseJoint fixedMouseJointC;
-        private FixedMouseJoint fixedMouseJointR;
+
+        private Player player;
+        //private Body plankBody;
+        //private CharacterController characterPosition;
+        //private Vector2 centralPlankPosition;
+        //private Vector2 leftPlankPosition;
+        //private Vector2 rightPlankPosition;
+        //private FixedMouseJoint fixedMouseJointL;
+        //private FixedMouseJoint fixedMouseJointC;
+        //private FixedMouseJoint fixedMouseJointR;
+
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
 
@@ -105,6 +109,8 @@ namespace XnaTest
         {
             base.LoadContent();
 
+            player = new Player();
+
             if (KinectSensor.KinectSensors.Count > 0)
             {
                 kinect = KinectSensor.KinectSensors[0];
@@ -112,11 +118,11 @@ namespace XnaTest
                 kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
                 kinect.Start();
 
-                characterPosition = new KinectController(0, 0, 0);
+                player.inputPosition = new KinectController(0, 0, 0);
             }
             else
             {
-                characterPosition = new KeyboardController(0, 0);
+                player.inputPosition = new KeyboardController(0, 0);
             }
 
             aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
@@ -178,45 +184,40 @@ namespace XnaTest
         private void updatePlankPositionVectors()
         {
             //TODO fetch constants from plank body
-            centralPlankPosition.X = characterPosition.getX();
-            centralPlankPosition.Y = plankHeightPosition;
-            leftPlankPosition.X = characterPosition.getX() - plankLength / 2;
-            leftPlankPosition.Y = plankHeightPosition + characterPosition.getDeltaY();
-            rightPlankPosition.X = characterPosition.getX() + plankLength / 2;
-            rightPlankPosition.Y = plankHeightPosition - characterPosition.getDeltaY();
+            player.centralPlankPosition.X = player.inputPosition.getX();
+            player.centralPlankPosition.Y = plankHeightPosition;
+            player.leftPlankPosition.X = player.inputPosition.getX() - plankLength / 2;
+            player.leftPlankPosition.Y = plankHeightPosition + player.inputPosition.getDeltaY();
+            player.rightPlankPosition.X = player.inputPosition.getX() + plankLength / 2;
+            player.rightPlankPosition.Y = plankHeightPosition - player.inputPosition.getDeltaY();
         }
 
         private void initPlankBody()
         {
-            
-            centralPlankPosition = new Vector2();
-            leftPlankPosition = new Vector2();
-            rightPlankPosition = new Vector2();
-
             updatePlankPositionVectors();
 
-            plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 1000f);
-          
-            plankBody.BodyType = BodyType.Dynamic;
-            plankBody.Restitution = 1f;
+            player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 1000f);
 
-            plankBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(plankBody.FixtureList[0].Shape,
+            player.plankBody.BodyType = BodyType.Dynamic;
+            player.plankBody.Restitution = 1f;
+
+            plankBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(player.plankBody.FixtureList[0].Shape,
                                                                                 MaterialType.Squares,
                                                                                 Color.Orange, 1f));
-            fixedMouseJointL = new FixedMouseJoint(plankBody, leftPlankPosition);
-            fixedMouseJointL.MaxForce = 1000.0f * plankBody.Mass;
-            World.AddJoint(fixedMouseJointL);
-            fixedMouseJointC = new FixedMouseJoint(plankBody, centralPlankPosition);
-            fixedMouseJointC.MaxForce = 1000.0f * plankBody.Mass;
-            World.AddJoint(fixedMouseJointC);
-            fixedMouseJointR = new FixedMouseJoint(plankBody, rightPlankPosition);
-            fixedMouseJointR.MaxForce = 1000.0f * plankBody.Mass;
-            World.AddJoint(fixedMouseJointR);
-            plankBody.Awake = true;
+            player.fixedMouseJointL = new FixedMouseJoint(player.plankBody, player.leftPlankPosition.convertToVector2());
+            player.fixedMouseJointL.MaxForce = 1000.0f * player.plankBody.Mass;
+            World.AddJoint(player.fixedMouseJointL);
+            player.fixedMouseJointC = new FixedMouseJoint(player.plankBody, player.centralPlankPosition.convertToVector2());
+            player.fixedMouseJointC.MaxForce = 1000.0f * player.plankBody.Mass;
+            World.AddJoint(player.fixedMouseJointC);
+            player.fixedMouseJointR = new FixedMouseJoint(player.plankBody, player.rightPlankPosition.convertToVector2());
+            player.fixedMouseJointR.MaxForce = 1000.0f * player.plankBody.Mass;
+            World.AddJoint(player.fixedMouseJointR);
+            player.plankBody.Awake = true;
 
-            fixedMouseJointL.DampingRatio = 1.0f;
-            fixedMouseJointC.DampingRatio = 1.0f;
-            fixedMouseJointR.DampingRatio = 1.0f;
+            player.fixedMouseJointL.DampingRatio = 1.0f;
+            player.fixedMouseJointC.DampingRatio = 1.0f;
+            player.fixedMouseJointR.DampingRatio = 1.0f;
 
             //fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
             //fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
@@ -274,13 +275,13 @@ namespace XnaTest
             ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
                groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
 
-            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(plankBody.Position),
+            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(player.plankBody.Position),
                                null,
-                               Color.White, plankBody.Rotation, plankBodySprite.Origin, 1f,
+                               Color.White, player.plankBody.Rotation, plankBodySprite.Origin, 1f,
                                SpriteEffects.None, 0f);
-            ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, rightPlankPosition, Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
 
             foreach (Body body in presentBodies) 
             {
@@ -312,7 +313,7 @@ namespace XnaTest
             
             ScreenManager.SpriteBatch.End();
 
-            draw3DModel();
+            //draw3DModel();
 
             base.Draw(gameTime);
         }
@@ -324,9 +325,9 @@ namespace XnaTest
             update3DModel(gameTime);
             //characterPosition.HandleInput(gameTime);
             updatePlankPositionVectors();
-            fixedMouseJointL.WorldAnchorB = leftPlankPosition;
-            fixedMouseJointC.WorldAnchorB = centralPlankPosition;
-            fixedMouseJointR.WorldAnchorB = rightPlankPosition;
+            player.fixedMouseJointL.WorldAnchorB = player.leftPlankPosition.convertToVector2();
+            player.fixedMouseJointC.WorldAnchorB = player.centralPlankPosition.convertToVector2();
+            player.fixedMouseJointR.WorldAnchorB = player.rightPlankPosition.convertToVector2();
 
             if (skeletonData != null)
             {
@@ -335,7 +336,7 @@ namespace XnaTest
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         skeleton = skel;
-                        characterPosition.HandleInput(
+                        player.inputPosition.HandleInput(
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
                             skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
@@ -345,7 +346,7 @@ namespace XnaTest
             }
             else
             {
-                characterPosition.HandleInput(
+                player.inputPosition.HandleInput(
                             gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
             }
 
@@ -355,7 +356,7 @@ namespace XnaTest
 
         private void update3DModel(GameTime gameTime)
         {
-            modelPosition = new Vector3(plankBody.Position.X, plankBody.Position.Y, 0);
+            modelPosition = new Vector3(player.plankBody.Position.X, player.plankBody.Position.Y, 0);
             modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
                 MathHelper.ToRadians(0.1f);
         }
