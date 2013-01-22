@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Kinect;
 
 namespace XnaTest.Controller
 {
-    class KeyboardController : CharacterController
+    public class KeyboardController : CharacterController
     {
         public KeyboardController(float x, float y)
         {
@@ -31,16 +32,8 @@ namespace XnaTest.Controller
         {
             return y;
         }
-        
 
-        //public KeyboardController(KeyboardState keyboardState)
-        //{
-        //    this.currentKeyboardState = keyboardState;
-        //}
-        /// <summary>
-        /// Handles input for quitting the game.
-        /// </summary>
-        public void HandleInput(GameTime gameTime)
+        public void HandleInput(GameTime gameTime, Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution)
         {
             KeyboardState currentKeyboardState = Keyboard.GetState();
             float time = (float)gameTime.ElapsedGameTime.TotalMilliseconds;

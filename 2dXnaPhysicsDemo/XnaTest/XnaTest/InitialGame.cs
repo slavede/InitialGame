@@ -61,6 +61,10 @@ namespace XnaTest
         // The aspect ratio determines how to scale 3d to 2d projection.
         float aspectRatio;
 
+        //TODO remove after development
+        Microsoft.Kinect.Joint emptyJoint = new Microsoft.Kinect.Joint();
+        Vector2 emptyVector = new Vector2();
+
         #region IDemoScreen Members
 
         public string GetTitle()
@@ -101,10 +105,19 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            kinect = KinectSensor.KinectSensors[0];
-            kinect.SkeletonStream.Enable();
-            kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
-            kinect.Start();
+            if (KinectSensor.KinectSensors.Count > 0)
+            {
+                kinect = KinectSensor.KinectSensors[0];
+                kinect.SkeletonStream.Enable();
+                kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
+                kinect.Start();
+
+                characterPosition = new KinectController(0, 0, 0);
+            }
+            else
+            {
+                characterPosition = new KeyboardController(0, 0);
+            }
 
             aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
             (float)ScreenManager.GraphicsDevice.Viewport.Height;
@@ -179,8 +192,6 @@ namespace XnaTest
             centralPlankPosition = new Vector2();
             leftPlankPosition = new Vector2();
             rightPlankPosition = new Vector2();
-            //characterPosition = new KeyboardController(0, 0);
-            characterPosition = new KinectController(0, 0, 0);
 
             updatePlankPositionVectors();
 
@@ -324,13 +335,18 @@ namespace XnaTest
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         skeleton = skel;
-                        ((KinectController)characterPosition).UpdatePositions(
+                        characterPosition.HandleInput(
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
                             skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
                             new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
                     }
                 }
+            }
+            else
+            {
+                characterPosition.HandleInput(
+                            gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
             }
 
 

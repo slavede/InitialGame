@@ -23,7 +23,7 @@ namespace XnaTest.Controller
             this.yRightArm = yRightArm;
         }
 
-        public void UpdatePositions(GameTime gameTime, Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution)
+        public void HandleInput(GameTime gameTime, Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             yLeftArm = (((-0.5f * leftHandJointPosition.Position.Y) + 0.5f) * (resolution.Y)) - resolution.Y / 2;
@@ -41,11 +41,6 @@ namespace XnaTest.Controller
         public float getDeltaY()
         {
             return (yLeftArm - yRightArm) * yChangeFactor;
-        }
-
-        public void HandleInput(Microsoft.Xna.Framework.GameTime gameTime)
-        {
-            throw new NotImplementedException();
         }
     }
 }

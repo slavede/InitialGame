@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Kinect;
 
 namespace XnaTest.Controller
 {
@@ -16,6 +17,6 @@ namespace XnaTest.Controller
          */
         float getDeltaY();
 
-        void HandleInput(GameTime gameTime);
+        void HandleInput(GameTime gameTime, Joint leftHandJointPosition, Joint rightHandJointPosition, Joint headJoint, Joint centerShoulderJoint, Vector2 resolution);
     }
 }
