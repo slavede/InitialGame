@@ -33,7 +33,8 @@ namespace XnaTest
         private Sprite groundBodySprite;
         private Body ground;
 
-        private Player player;
+        private Dictionary<int,Player> players;
+        private Player initialPlayer; //because if no skeletons, one should be present
 
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
@@ -101,7 +102,8 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            player = new Player();
+            initialPlayer = new Player();
+            players = new Dictionary<int, Player>();
 
             if (KinectSensor.KinectSensors.Count > 0)
             {
@@ -110,11 +112,11 @@ namespace XnaTest
                 kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
                 kinect.Start();
 
-                player.inputPosition = new KinectController(0, 0, 0);
+                initialPlayer.inputPosition = new KinectController(0, 0, 0);
             }
             else
             {
-                player.inputPosition = new KeyboardController(0, 0);
+                initialPlayer.inputPosition = new KeyboardController(0, 0);
             }
 
             aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
@@ -135,7 +137,7 @@ namespace XnaTest
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_3_transparent"));
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_4_transparent"));
 
-            initPlankBody();
+            initPlankBody(initialPlayer);
 
             ground = BodyFactory.CreateRectangle(World,
                   ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Width * 2f),
@@ -173,7 +175,7 @@ namespace XnaTest
             }
         }
 
-        private void updatePlankPositionVectors()
+        private void updatePlankPositionVectors(Player player)
         {
             //TODO fetch constants from plank body
             player.centralPlankPosition.X = player.inputPosition.getX();
@@ -184,9 +186,9 @@ namespace XnaTest
             player.rightPlankPosition.Y = plankHeightPosition - player.inputPosition.getDeltaY();
         }
 
-        private void initPlankBody()
+        private void initPlankBody(Player player)
         {
-            updatePlankPositionVectors();
+            updatePlankPositionVectors(player);
 
             player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 1000f);
 
@@ -265,13 +267,16 @@ namespace XnaTest
             ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
                groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
 
-            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(player.plankBody.Position),
-                               null,
-                               Color.White, player.plankBody.Rotation, plankBodySprite.Origin, 1f,
-                               SpriteEffects.None, 0f);
-            ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
+            if (players.Count > 0)
+            {
+                foreach(Player player in players.Values){
+                    drawPlayer(player);
+                }
+            }
+            else
+            {
+                drawPlayer(initialPlayer);
+            }
 
             foreach (Body body in presentBodies) 
             {
@@ -308,45 +313,84 @@ namespace XnaTest
             base.Draw(gameTime);
         }
 
+        private void drawPlayer(Player player)
+        {
+            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(player.plankBody.Position),
+                               null,
+                               Color.White, player.plankBody.Rotation, plankBodySprite.Origin, 1f,
+                               SpriteEffects.None, 0f);
+            ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
+        }
+
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             populatePresent();
 
             update3DModel(gameTime);
-            //characterPosition.HandleInput(gameTime);
-            updatePlankPositionVectors();
-            player.fixedMouseJointL.WorldAnchorB = player.leftPlankPosition.convertToVector2();
-            player.fixedMouseJointC.WorldAnchorB = player.centralPlankPosition.convertToVector2();
-            player.fixedMouseJointR.WorldAnchorB = player.rightPlankPosition.convertToVector2();
 
             if (skeletonData != null)
             {
-                foreach (Skeleton skel in skeletonData)
+                for(int i=0;i<skeletonData.Length;i++)
                 {
+                    Skeleton skel = skeletonData[i];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
+                        if (players.Count == 0)
+                        {
+                            players.Add(i, initialPlayer);
+                        }
+                        else
+                        {
+                            if (!players.ContainsKey(i))
+                            {
+                                Player newPlayer = new Player();
+                                newPlayer.inputPosition = new KinectController(0, 0, 0);
+                                initPlankBody(newPlayer);
+                                players.Add(i, newPlayer);
+                            }
+                        }
                         skeleton = skel;
-                        player.inputPosition.HandleInput(
+                        players[i].inputPosition.HandleInput(
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
                             skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
                             new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
+                        updatePlankPositionVectors(players[i]);
+                        updateBodyFixedJoints(players[i]);
+                    }
+                    else
+                    {
+                        if (players.ContainsKey(i))
+                        {
+                            players.Remove(i);
+                        }
                     }
                 }
             }
             else
             {
-                player.inputPosition.HandleInput(
+                initialPlayer.inputPosition.HandleInput(
                             gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
+                updatePlankPositionVectors(initialPlayer);
+                updateBodyFixedJoints(initialPlayer);
             }
 
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        private void update3DModel(GameTime gameTime)
+        private static void updateBodyFixedJoints(Player player)
         {
-            modelPosition = new Vector3(player.plankBody.Position.X, player.plankBody.Position.Y, 0);
+            player.fixedMouseJointL.WorldAnchorB = player.leftPlankPosition.convertToVector2();
+            player.fixedMouseJointC.WorldAnchorB = player.centralPlankPosition.convertToVector2();
+            player.fixedMouseJointR.WorldAnchorB = player.rightPlankPosition.convertToVector2();
+        }
+
+        private void update3DModel(GameTime gameTime)//TODO update this after fixing model animation
+        {
+            modelPosition = new Vector3(initialPlayer.plankBody.Position.X, initialPlayer.plankBody.Position.Y, 0);
             modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
                 MathHelper.ToRadians(0.1f);
         }
