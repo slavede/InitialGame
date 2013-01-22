@@ -25,19 +25,27 @@ namespace XnaTest
     /// </summary>
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
+        private const int generatePresentsInterval = 4; //time in seconds
+        private const float plankHeightPosition = 100f;
+        private const int plankLength = 150;
+        private const int borderSize = 10;
+        private const int explosionStays = 50; // time in miliseconds
+        //TODO remove after development
+        private Microsoft.Kinect.Joint emptyJoint = new Microsoft.Kinect.Joint();
+        private Vector2 emptyVector = new Vector2();
+        
         private Dictionary<int, Sprite> presentSpriteBodyMapping;
         private List<Texture2D> presentTextures;
         private List<Body> presentBodies;
         Random random;
         private Texture2D background;
-
         Stopwatch presentsStopwatch;
-        private int generatePresentsInterval = 4; //time in seconds
-        private float plankHeightPosition = 100f;
-        private int plankLength = 150;
-
+  
         private Sprite groundBodySprite;
         private Body ground;
+        private Sprite wallSprite;
+        private Body wallL;
+        private Body wallR;
 
         private Dictionary<int,Player> players;
         private Player initialPlayer; //because if no skeletons, one should be present
@@ -47,7 +55,7 @@ namespace XnaTest
 
         private Dictionary<double, Vector2> explosionTimesLocationsMapping;
         private Stopwatch explosionsStopwatch;
-        private int explosionStays = 50; // time in miliseconds
+  
         private Texture2D explosionTexture;
 
         KinectSensor kinect;
@@ -63,10 +71,6 @@ namespace XnaTest
         Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 5000);
         // The aspect ratio determines how to scale 3d to 2d projection.
         float aspectRatio;
-
-        //TODO remove after development
-        Microsoft.Kinect.Joint emptyJoint = new Microsoft.Kinect.Joint();
-        Vector2 emptyVector = new Vector2();
 
         #region IDemoScreen Members
 
@@ -145,15 +149,7 @@ namespace XnaTest
 
             initPlankBody(initialPlayer);
 
-            ground = BodyFactory.CreateRectangle(World,
-                  ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Width * 2f),
-                  20, 1f, ConvertUnits.ToSimUnits(new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 2f, ScreenManager.GraphicsDevice.Viewport.Height / 2f)));
-            ground.Restitution = 0.8f;
-            ground.IsStatic = true;
-
-            groundBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(ground.FixtureList[0].Shape,
-                                                                                MaterialType.Squares,
-                                                                                Color.Orange, 1f));
+            initEdges();
             circleTexture = CreateCircle(5);
             random = new Random();
 
@@ -162,6 +158,28 @@ namespace XnaTest
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
             base.EnableCameraControl = false;
+        }
+
+        private void initEdges()
+        {
+            ground = BodyFactory.CreateRectangle(World,
+                  ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Width),
+                  borderSize, 1f, ConvertUnits.ToSimUnits(new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height / 2f)));
+            ground.IsStatic = true;
+            groundBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(ground.FixtureList[0].Shape,
+                                                                                MaterialType.Squares,
+                                                                                Color.Orange, 1f));
+            wallL = BodyFactory.CreateRectangle(World, borderSize,
+                  ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Height), 1f, ConvertUnits.ToSimUnits(new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2f, 0)));
+            wallR = BodyFactory.CreateRectangle(World, borderSize,
+                  ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Height), 1f, ConvertUnits.ToSimUnits(new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 2f, 0)));
+            wallL.IsStatic = true;
+            wallR.IsStatic = true;
+            wallL.CollisionCategories = Category.Cat4;
+            wallR.CollisionCategories = Category.Cat4;
+            wallSprite = new Sprite(ScreenManager.Assets.TextureFromShape(wallL.FixtureList[0].Shape,
+                                                                                MaterialType.Squares,
+                                                                                Color.Orange, 1f));
         }
 
         void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
@@ -269,10 +287,7 @@ namespace XnaTest
         {
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
 
-            ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
-
-            ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
-               groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
+            drawBackground();
 
             if (players.Count > 0)
             {
@@ -318,6 +333,17 @@ namespace XnaTest
             //draw3DModel();
 
             base.Draw(gameTime);
+        }
+
+        private void drawBackground()
+        {
+            ScreenManager.SpriteBatch.Draw(background, new Rectangle(-ScreenManager.GraphicsDevice.Viewport.Width / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 2, ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), Color.White);
+            ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
+               groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
+            ScreenManager.SpriteBatch.Draw(wallSprite.Texture, ConvertUnits.ToDisplayUnits(wallL.Position), null, Color.White, 0f,
+               wallSprite.Origin, 1f, SpriteEffects.None, 0f);
+            ScreenManager.SpriteBatch.Draw(wallSprite.Texture, ConvertUnits.ToDisplayUnits(wallR.Position), null, Color.White, 0f,
+               wallSprite.Origin, 1f, SpriteEffects.None, 0f);
         }
 
         private void drawPlayer(Player player)
