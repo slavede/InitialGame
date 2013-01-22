@@ -27,21 +27,13 @@ namespace XnaTest
 
         Stopwatch presentsStopwatch;
         private int generatePresentsInterval = 4; //time in seconds
-        private float plankHeightPosition = 0f;
-        private int plankLength = 100;
+        private float plankHeightPosition = 100f;
+        private int plankLength = 150;
 
         private Sprite groundBodySprite;
         private Body ground;
 
         private Player player;
-        //private Body plankBody;
-        //private CharacterController characterPosition;
-        //private Vector2 centralPlankPosition;
-        //private Vector2 leftPlankPosition;
-        //private Vector2 rightPlankPosition;
-        //private FixedMouseJoint fixedMouseJointL;
-        //private FixedMouseJoint fixedMouseJointC;
-        //private FixedMouseJoint fixedMouseJointR;
 
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
@@ -198,6 +190,8 @@ namespace XnaTest
 
             player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 100f);
 
+            player.plankBody.Position = player.centralPlankPosition.convertToVector2();
+
             player.plankBody.BodyType = BodyType.Dynamic;
             player.plankBody.Restitution= 0f;
 
@@ -219,8 +213,6 @@ namespace XnaTest
             player.fixedMouseJointC.DampingRatio = 1.0f;
             player.fixedMouseJointR.DampingRatio = 1.0f;
 
-            //fixedMouseJointL.WorldAnchorB = characterPosition.getLeftHandPosition();
-            //fixedMouseJointR.WorldAnchorB = characterPosition.getRightHandPosition();
         }
 
         private void DrawSkeleton(SpriteBatch spriteBatch, Vector2 resolution, Texture2D img)
@@ -229,8 +221,6 @@ namespace XnaTest
             {
                 foreach (Microsoft.Kinect.Joint joint in skeleton.Joints)
                 {
-                    //float xPosition = joint.Position.X - ScreenManager.GraphicsDevice.Viewport.Width / 2;
-                    //float yPosition = joint.Position.Y - ScreenManager.GraphicsDevice.Viewport.Height / 2;
                     Vector2 position = new Vector2((((0.5f * joint.Position.X) + 0.5f) * (resolution.X)) - ScreenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * joint.Position.Y) + 0.5f) * (resolution.Y)) - ScreenManager.GraphicsDevice.Viewport.Height / 2);
                     spriteBatch.Draw(img, new Rectangle(Convert.ToInt32(position.X), Convert.ToInt32(position.Y), 10, 10), Color.Red);
                 }
