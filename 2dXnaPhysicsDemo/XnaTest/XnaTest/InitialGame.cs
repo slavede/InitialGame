@@ -17,6 +17,12 @@ using XnaTest.Character.Controller;
 
 namespace XnaTest
 {
+    /// <summary>
+    /// presents - category1
+    /// planks - category2
+    /// ground - category3
+    /// walls - category4
+    /// </summary>
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
         private Dictionary<int, Sprite> presentSpriteBodyMapping;
@@ -191,7 +197,8 @@ namespace XnaTest
             updatePlankPositionVectors(player);
 
             player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 100f);
-
+            player.plankBody.CollisionCategories = Category.Cat2;
+            player.plankBody.CollidesWith = Category.Cat1 | Category.Cat4;
             player.plankBody.Position = player.centralPlankPosition.convertToVector2();
 
             player.plankBody.BodyType = BodyType.Dynamic;
@@ -422,8 +429,9 @@ namespace XnaTest
             presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
             presentBody.Restitution = 1.0f;
             presentBody.Mass = 1;
-            
 
+            presentBody.CollisionCategories = Category.Cat1;
+            presentBody.CollidesWith = Category.Cat1 | Category.Cat2 | Category.Cat4;
             // create sprite based on body
             presentSpriteBodyMapping.Add(presentBody.BodyId, new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
