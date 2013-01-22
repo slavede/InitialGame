@@ -151,7 +151,7 @@ namespace XnaTest
             circleTexture = CreateCircle(5);
             random = new Random();
 
-            World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height);
+            World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height/15);
 
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
@@ -190,12 +190,12 @@ namespace XnaTest
         {
             updatePlankPositionVectors(player);
 
-            player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 1000f);
+            player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 100f);
 
             player.plankBody.Position = player.centralPlankPosition.convertToVector2();
 
             player.plankBody.BodyType = BodyType.Dynamic;
-            player.plankBody.Restitution = 1f;
+            player.plankBody.Restitution= 0f;
 
             plankBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(player.plankBody.FixtureList[0].Shape,
                                                                                 MaterialType.Squares,
@@ -420,7 +420,9 @@ namespace XnaTest
             presentBody.Position = new Vector2(random.Next(-ScreenManager.GraphicsDevice.Viewport.Width / 2, ScreenManager.GraphicsDevice.Viewport.Width / 2), -ScreenManager.GraphicsDevice.Viewport.Height / 2);
             presentBody.BodyType = BodyType.Dynamic;
             presentBody.OnCollision += new OnCollisionEventHandler(presentBody_OnCollision);
-            presentBody.Restitution = 2.0f;
+            presentBody.Restitution = 1.0f;
+            presentBody.Mass = 1;
+            
 
             // create sprite based on body
             presentSpriteBodyMapping.Add(presentBody.BodyId, new Sprite(presentTextures[textureIndex]));
@@ -439,7 +441,7 @@ namespace XnaTest
                 bodyIdToRemove = fixtureB.Body.BodyId;
                 bodyToRemove = fixtureB.Body;
             }
-            else if (fixtureB.Body.BodyId == ground.BodyId) 
+            else if (fixtureB.Body.BodyId == ground.BodyId)
             {
                 // it has hit the floor
                 bodyIdToRemove = fixtureA.Body.BodyId;
