@@ -166,6 +166,7 @@ namespace XnaTest
                   ConvertUnits.ToSimUnits(ScreenManager.GraphicsDevice.Viewport.Width),
                   borderSize, 1f, ConvertUnits.ToSimUnits(new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height / 2f)));
             ground.IsStatic = true;
+            ground.CollisionCategories = Category.Cat3;
             groundBodySprite = new Sprite(ScreenManager.Assets.TextureFromShape(ground.FixtureList[0].Shape,
                                                                                 MaterialType.Squares,
                                                                                 Color.Orange, 1f));
@@ -457,7 +458,7 @@ namespace XnaTest
             presentBody.Mass = 1;
 
             presentBody.CollisionCategories = Category.Cat1;
-            presentBody.CollidesWith = Category.Cat1 | Category.Cat2 | Category.Cat4;
+            presentBody.CollidesWith = Category.Cat1 | Category.Cat2 | Category.Cat3 | Category.Cat4;
             // create sprite based on body
             presentSpriteBodyMapping.Add(presentBody.BodyId, new Sprite(presentTextures[textureIndex]));
             presentBodies.Add(presentBody);
