@@ -12,9 +12,12 @@ using System.Diagnostics;
 using FarseerPhysics.Dynamics.Joints;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework.Input;
+<<<<<<< HEAD
+using SkinnedModel;
+=======
 using XnaTest.Character;
 using XnaTest.Character.Controller;
-using SkinnedModel;
+>>>>>>> origin/master
 
 namespace XnaTest
 {
@@ -116,10 +119,14 @@ namespace XnaTest
         {
             base.LoadContent();
 
+<<<<<<< HEAD
+            //kinect = KinectSensor.KinectSensors[0];
+            //kinect.SkeletonStream.Enable();
+            //kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
+            //kinect.Start();
+=======
             initialPlayer = new Player();
             players = new Dictionary<int, Player>();
-
-            LoadAnimationContent();
 
             if (KinectSensor.KinectSensors.Count > 0)
             {
@@ -134,6 +141,9 @@ namespace XnaTest
             {
                 initialPlayer.inputPosition = new KeyboardController(0, 0);
             }
+>>>>>>> origin/master
+
+            LoadAnimationContent();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
@@ -215,7 +225,16 @@ namespace XnaTest
 
         private void initPlankBody(Player player)
         {
+<<<<<<< HEAD
+            
+            centralPlankPosition = new Vector2();
+            leftPlankPosition = new Vector2();
+            rightPlankPosition = new Vector2();
+            characterPosition = new KeyboardController(0, 0);
+            //characterPosition = new KinectController(0, 0, 0);
+=======
             updatePlankPositionVectors(player);
+>>>>>>> origin/master
 
             player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 100f);
             player.plankBody.CollisionCategories = Category.Cat2;
@@ -264,6 +283,8 @@ namespace XnaTest
 
             drawBackground();
 
+<<<<<<< HEAD
+=======
             if (players.Count > 0)
             {
                 foreach(Player player in players.Values){
@@ -275,6 +296,7 @@ namespace XnaTest
                 drawPlayer(initialPlayer);
             }
 
+>>>>>>> origin/master
             foreach (Body body in presentBodies) 
             {
                 ScreenManager.SpriteBatch.Draw(presentSpriteBodyMapping[body.BodyId].Texture, ConvertUnits.ToDisplayUnits(body.Position),
@@ -305,6 +327,7 @@ namespace XnaTest
             
             ScreenManager.SpriteBatch.End();
 
+<<<<<<< HEAD
             drawAnimationModel();
 
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
@@ -318,6 +341,9 @@ namespace XnaTest
             ScreenManager.SpriteBatch.Draw(circleTexture, rightPlankPosition, Color.Black);
 
             ScreenManager.SpriteBatch.End();
+=======
+            //draw3DModel();
+>>>>>>> origin/master
 
             base.Draw(gameTime);
         }
@@ -348,7 +374,15 @@ namespace XnaTest
         {
             populatePresent();
 
+<<<<<<< HEAD
             updateAnimationModel(gameTime);
+            characterPosition.HandleInput(gameTime);
+            updatePlankPositionVectors();
+            fixedMouseJointL.WorldAnchorB = leftPlankPosition;
+            fixedMouseJointC.WorldAnchorB = centralPlankPosition;
+            fixedMouseJointR.WorldAnchorB = rightPlankPosition;
+=======
+            update3DModel(gameTime);
 
             if (skeletonData != null)
             {
@@ -397,10 +431,13 @@ namespace XnaTest
                 updateBodyFixedJoints(initialPlayer);
             }
 
+>>>>>>> origin/master
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
+<<<<<<< HEAD
+=======
         private static void updateBodyFixedJoints(Player player)
         {
             player.fixedMouseJointL.WorldAnchorB = player.leftPlankPosition.convertToVector2();
@@ -415,6 +452,7 @@ namespace XnaTest
                 MathHelper.ToRadians(0.1f);
         }
 
+>>>>>>> origin/master
         private void populatePresent()
         {
             if (presentsStopwatch == null)
