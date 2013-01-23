@@ -13,6 +13,7 @@ using XnaTest.Controller;
 using FarseerPhysics.Dynamics.Joints;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework.Input;
+using SkinnedModel;
 
 namespace XnaTest
 {
@@ -60,6 +61,9 @@ namespace XnaTest
         Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 5000);
         // The aspect ratio determines how to scale 3d to 2d projection.
         float aspectRatio;
+        private Matrix[] boneTransforms;
+        private SkinningData skinningData;
+        private AnimationPlayer animationPlayer;
 
         #region IDemoScreen Members
 
@@ -101,14 +105,12 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            kinect = KinectSensor.KinectSensors[0];
-            kinect.SkeletonStream.Enable();
-            kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
-            kinect.Start();
+            //kinect = KinectSensor.KinectSensors[0];
+            //kinect.SkeletonStream.Enable();
+            //kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
+            //kinect.Start();
 
-            aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
-            (float)ScreenManager.GraphicsDevice.Viewport.Height;
-            myModel = ScreenManager.Content.Load<Model>("Models\\p1_wedge");
+            LoadAnimationContent();
 
             background = ScreenManager.Content.Load<Texture2D>("background");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
@@ -192,8 +194,8 @@ namespace XnaTest
             centralPlankPosition = new Vector2();
             leftPlankPosition = new Vector2();
             rightPlankPosition = new Vector2();
-            //characterPosition = new KeyboardController(0, 0);
-            characterPosition = new KinectController(0, 0, 0);
+            characterPosition = new KeyboardController(0, 0);
+            //characterPosition = new KinectController(0, 0, 0);
 
             updatePlankPositionVectors();
 
@@ -238,35 +240,7 @@ namespace XnaTest
             }
         }
 
-        private void draw3DModel()
-        {
-            // Draw the model (to the rendertarget)
-            Matrix[] transforms = new Matrix[myModel.Bones.Count];
-            myModel.CopyAbsoluteBoneTransformsTo(transforms);
-
-            // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in myModel.Meshes)
-            {
-                // This is where the mesh orientation is set, as well 
-                // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.World = transforms[mesh.ParentBone.Index] *
-                        Matrix.CreateRotationY(modelRotation)
-                        * Matrix.CreateTranslation(modelPosition);
-                    effect.View = Matrix.CreateLookAt(cameraPosition,
-                        Vector3.Zero,
-                        Vector3.Up);
-                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(
-                        MathHelper.ToRadians(45.0f), aspectRatio,
-                        1.0f, 10000.0f);
-                    effect.EnableDefaultLighting();
-                }
-                // Draw the mesh, using the effects set above.
-                mesh.Draw();
-            }
-        }
-
+       
         public override void Draw(GameTime gameTime)
         {
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
@@ -275,14 +249,6 @@ namespace XnaTest
 
             ScreenManager.SpriteBatch.Draw(groundBodySprite.Texture, ConvertUnits.ToDisplayUnits(ground.Position), null, Color.White, 0f,
                groundBodySprite.Origin, 1f, SpriteEffects.None, 0f);
-
-            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(plankBody.Position),
-                               null,
-                               Color.White, plankBody.Rotation, plankBodySprite.Origin, 1f,
-                               SpriteEffects.None, 0f);
-            ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, rightPlankPosition, Color.Black);
 
             foreach (Body body in presentBodies) 
             {
@@ -314,7 +280,19 @@ namespace XnaTest
             
             ScreenManager.SpriteBatch.End();
 
-            draw3DModel();
+            drawAnimationModel();
+
+            ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
+
+            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(plankBody.Position),
+                               null,
+                               Color.White, plankBody.Rotation, plankBodySprite.Origin, 1f,
+                               SpriteEffects.None, 0f);
+            ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
+            ScreenManager.SpriteBatch.Draw(circleTexture, rightPlankPosition, Color.Black);
+
+            ScreenManager.SpriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -323,21 +301,14 @@ namespace XnaTest
         {
             populatePresent();
 
-            update3DModel(gameTime);
-            //characterPosition.HandleInput(gameTime);
+            updateAnimationModel(gameTime);
+            characterPosition.HandleInput(gameTime);
             updatePlankPositionVectors();
             fixedMouseJointL.WorldAnchorB = leftPlankPosition;
             fixedMouseJointC.WorldAnchorB = centralPlankPosition;
             fixedMouseJointR.WorldAnchorB = rightPlankPosition;
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        private void update3DModel(GameTime gameTime)
-        {
-            modelPosition = new Vector3(plankBody.Position.X, plankBody.Position.Y, 0);
-            modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
-                MathHelper.ToRadians(0.1f);
         }
 
         private void populatePresent()
@@ -451,5 +422,150 @@ namespace XnaTest
             texture.SetData(data);
             return texture;
         }
-}
+
+        #region Animation
+
+        /// <summary>
+        /// Loads content necessary for Animation
+        /// </summary>
+        private void LoadAnimationContent()
+        {
+            //TODO: Obrisi ovo
+            aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
+           (float)ScreenManager.GraphicsDevice.Viewport.Height;
+
+            //Initialize model
+            myModel = ScreenManager.Content.Load<Model>("Models/DudeWithAnimations");
+
+            skinningData = myModel.Tag as SkinningData;
+            if (skinningData == null)
+                throw new InvalidOperationException
+                    ("This model does not contain a SkinningData tag.");
+            boneTransforms = new Matrix[skinningData.BindPose.Count];
+
+            // Create an animation player, and start decoding an animation clip.
+            animationPlayer = new AnimationPlayer(skinningData);
+            AnimationClip clip = skinningData.AnimationClips["Walk"];
+            animationPlayer.StartClip(clip);
+
+        }
+
+        /// <summary>
+        /// Updates Animation Model
+        /// </summary>
+        private void updateAnimationModel(GameTime gameTime)
+        {
+            // Read gamepad inputs.
+            float headRotation = 0f; // currentGamePadState.ThumbSticks.Left.X;
+            float armRotation = 1f; // Math.Max(currentGamePadState.ThumbSticks.Left.Y, 0);
+
+            // Create rotation matrices for the head and arm bones.
+            Matrix headTransform = Matrix.CreateRotationX(headRotation);
+            Matrix armTransform = Matrix.CreateFromYawPitchRoll(5f, 0f, armRotation);
+
+            // Tell the animation player to compute the latest bone transform matrices.
+            animationPlayer.UpdateBoneTransforms(gameTime.ElapsedGameTime, true);
+
+            // Copy the transforms into our own array, so we can safely modify the values.
+            animationPlayer.GetBoneTransforms().CopyTo(boneTransforms, 0);
+
+            // Modify the transform matrices for the head and upper-left arm bones.
+            int headIndex = skinningData.BoneIndices["Head"];
+            int armIndex = skinningData.BoneIndices["L-Hand"];
+
+            boneTransforms[headIndex] = headTransform * boneTransforms[headIndex];
+            boneTransforms[armIndex] = armTransform * boneTransforms[armIndex];
+
+            // Tell the animation player to recompute the world and skin matrices.
+            animationPlayer.UpdateWorldTransforms(Matrix.Identity, boneTransforms);
+            animationPlayer.UpdateSkinTransforms();
+
+            //TODO obriši ovo
+            modelPosition = new Vector3(plankBody.Position.X / 120, plankBody.Position.Y / 120, 0);
+            modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
+                MathHelper.ToRadians(0.1f);
+        }
+
+        /// <summary>
+        /// Draw Animation Model
+        /// </summary>
+        private void drawAnimationModel()
+        {
+            Matrix[] bones = animationPlayer.GetSkinTransforms();
+
+            Matrix world = Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
+                         * Matrix.CreateTranslation(new Vector3(0, 1, 10))
+                         * Matrix.CreateTranslation(modelPosition);
+
+            // Compute camera matrices.
+            Matrix view = Matrix.CreateTranslation(0, -40, 0) *
+                          Matrix.CreateRotationY(MathHelper.ToRadians(0)) *
+                          Matrix.CreateRotationX(MathHelper.ToRadians(0)) *
+                          Matrix.CreateLookAt(new Vector3(0, 0, -100),
+                                              new Vector3(0, 0, 0), Vector3.Up) * Matrix.CreateTranslation(modelPosition);
+
+            Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+                                                                    ScreenManager.GraphicsDevice.Viewport.AspectRatio,
+                                                                    1,
+                                                                    10000);
+
+            // Render the skinned mesh.
+            foreach (ModelMesh mesh in myModel.Meshes)
+            {
+                foreach (SkinnedEffect effect in mesh.Effects)
+                {
+                    effect.SetBoneTransforms(bones);
+
+                    effect.World = Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
+                                   * Matrix.CreateTranslation(new Vector3(0, -1, 1))
+                                   * Matrix.CreateTranslation(modelPosition);
+                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
+                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
+                    ScreenManager.GraphicsDevice.Viewport.AspectRatio, 1.0f, 100.0f);
+               
+                    //effect.World = world;
+                    //effect.View = view;
+                    //effect.Projection = projection;
+
+                    effect.EnableDefaultLighting();
+
+                    effect.SpecularColor = new Vector3(0.25f);
+                    effect.SpecularPower = 16;
+                }
+
+                mesh.Draw();
+            }
+
+            // TODO Obriši ovo
+            /*
+            // Draw the model (to the rendertarget)
+            Matrix[] transforms = new Matrix[myModel.Bones.Count];
+            myModel.Bones["Neck"].Transform = Matrix.CreateTranslation(new Vector3(0, 20, 0)) * myModel.Bones["Neck"].Transform;
+            myModel.CopyAbsoluteBoneTransformsTo(transforms);
+
+            // Draw the model. A model can have multiple meshes, so loop.
+            foreach (ModelMesh mesh in myModel.Meshes)
+            {
+                // This is where the mesh orientation is set, as well 
+                // as our camera and projection.
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.World = transforms[mesh.ParentBone.Index] * Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
+                         * Matrix.CreateTranslation(new Vector3(0, -1, 0))
+                         * Matrix.CreateTranslation(modelPosition);
+                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
+                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
+                    (float)ScreenManager.GraphicsDevice.Viewport.Width / (float)ScreenManager.GraphicsDevice.Viewport.Height, 1.0f, 100.0f);
+                }
+                // Draw the mesh, using the effects set above.
+                mesh.Draw();
+            }
+            */
+
+        }
+
+
+        #endregion
+    }
 }

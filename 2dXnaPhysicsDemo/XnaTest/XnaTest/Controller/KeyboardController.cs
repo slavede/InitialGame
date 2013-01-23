@@ -31,7 +31,6 @@ namespace XnaTest.Controller
         {
             return y;
         }
-        
 
         //public KeyboardController(KeyboardState keyboardState)
         //{
