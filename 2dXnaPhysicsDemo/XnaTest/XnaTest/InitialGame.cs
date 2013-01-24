@@ -307,18 +307,6 @@ namespace XnaTest
 
             drawAnimationModel();
 
-            ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
-
-            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(plankBody.Position),
-                               null,
-                               Color.White, plankBody.Rotation, plankBodySprite.Origin, 1f,
-                               SpriteEffects.None, 0f);
-            ScreenManager.SpriteBatch.Draw(circleTexture, leftPlankPosition, Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, centralPlankPosition, Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, rightPlankPosition, Color.Black);
-
-            ScreenManager.SpriteBatch.End();
-
             base.Draw(gameTime);
         }
 
@@ -384,6 +372,11 @@ namespace XnaTest
                     {
                         if (players.ContainsKey(i))
                         {
+                            Player p = players[i];
+                            if (p != initialPlayer)
+                            {
+                                p.plankBody.Dispose();
+                            }
                             players.Remove(i);
                         }
                     }
@@ -552,7 +545,7 @@ namespace XnaTest
 
             // Create an animation player, and start decoding an animation clip.
             animationPlayer = new AnimationPlayer(skinningData);
-            AnimationClip clip = skinningData.AnimationClips["Walk"];
+            AnimationClip clip = skinningData.AnimationClips["Stand"];
             animationPlayer.StartClip(clip);
 
         }
@@ -588,7 +581,7 @@ namespace XnaTest
             animationPlayer.UpdateSkinTransforms();
 
             //TODO obriši ovo
-            modelPosition = new Vector3(plankBody.Position.X / 120, plankBody.Position.Y / 120, 0);
+            modelPosition = new Vector3(initialPlayer.plankBody.Position.X / 120, initialPlayer.plankBody.Position.Y / 120, 0);
             modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
                 MathHelper.ToRadians(0.1f);
         }
@@ -624,7 +617,7 @@ namespace XnaTest
                     effect.SetBoneTransforms(bones);
 
                     effect.World = Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
-                                   * Matrix.CreateTranslation(new Vector3(0, -1, 1))
+                                   * Matrix.CreateTranslation(new Vector3(0, -3f, -1))
                                    * Matrix.CreateTranslation(modelPosition);
                     effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
                     effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
