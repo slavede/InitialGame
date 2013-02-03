@@ -25,6 +25,8 @@ Content\Textures\HEAD.xnb
 Content\Textures\JACKET.xnb
 Content\Textures\PANTS.xnb
 Content\Textures\upBodyC.xnb
+Content\wired_basket.xnb
+Content\wired_basket_cover.xnb
 Content\Font.xnb
 Content\Models\p1_wedge.xnb
 Content\Models\DudeWithAnimations.xnb
@@ -33,4 +35,6 @@ Content\textures\jacket_0.xnb
 Content\textures\upBodyC_0.xnb
 Content\textures\pants_0.xnb
 Content\textures\head_0.xnb
+Content\CharacterSprites\majlo-with-plank.xnb
+Content\CharacterSprites\majlo.xnb
 Content\font.xnb

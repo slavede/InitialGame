@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Input;
 using XnaTest.Character;
 using XnaTest.Character.Controller;
 using SkinnedModel;
+using XnaTest.Character.Characters;
 
 namespace XnaTest
 {
@@ -27,8 +28,7 @@ namespace XnaTest
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
         private const int generatePresentsInterval = 4; //time in seconds
-        private const float plankHeightPosition = 100f;
-        private const int plankLength = 150;
+        
         private const int borderSize = 10;
         private const int explosionStays = 50; // time in miliseconds
         //TODO remove after development
@@ -116,10 +116,11 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            initialPlayer = new Player();
+            initialPlayer = new Player(new Majlo(ScreenManager.Content));       
+
             players = new Dictionary<int, Player>();
 
-            LoadAnimationContent();
+            //LoadAnimationContent();
 
             if (KinectSensor.KinectSensors.Count > 0)
             {
@@ -202,22 +203,11 @@ namespace XnaTest
             }
         }
 
-        private void updatePlankPositionVectors(Player player)
-        {
-            //TODO fetch constants from plank body
-            player.centralPlankPosition.X = player.inputPosition.getX();
-            player.centralPlankPosition.Y = plankHeightPosition;
-            player.leftPlankPosition.X = player.inputPosition.getX() - plankLength / 2;
-            player.leftPlankPosition.Y = plankHeightPosition + player.inputPosition.getDeltaY();
-            player.rightPlankPosition.X = player.inputPosition.getX() + plankLength / 2;
-            player.rightPlankPosition.Y = plankHeightPosition - player.inputPosition.getDeltaY();
-        }
-
         private void initPlankBody(Player player)
         {
-            updatePlankPositionVectors(player);
+            player.updatePlankPositionVectors();
 
-            player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 100f);
+            player.plankBody = BodyFactory.CreateRectangle(World, Player.plankLength, 10, 100f);
             player.plankBody.CollisionCategories = Category.Cat2;
             player.plankBody.CollidesWith = Category.Cat1 | Category.Cat4;
             player.plankBody.Position = player.centralPlankPosition.convertToVector2();
@@ -268,12 +258,12 @@ namespace XnaTest
             {
                 foreach (Player player in players.Values)
                 {
-                    drawPlayer(player);
+                    DrawPlayer(player);
                 }
             }
             else
             {
-                drawPlayer(initialPlayer);
+                DrawPlayer(initialPlayer);
             }
 
             foreach (Body body in presentBodies)
@@ -306,7 +296,7 @@ namespace XnaTest
 
             ScreenManager.SpriteBatch.End();
 
-            drawAnimationModel();
+             //drawAnimationModel();
 
             base.Draw(gameTime);
         }
@@ -322,12 +312,11 @@ namespace XnaTest
                wallSprite.Origin, 1f, SpriteEffects.None, 0f);
         }
 
-        private void drawPlayer(Player player)
+        private void DrawPlayer(Player player)
         {
-            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(player.plankBody.Position),
-                               null,
-                               Color.White, player.plankBody.Rotation, plankBodySprite.Origin, 1f,
-                               SpriteEffects.None, 0f);
+            player.Draw(ScreenManager.SpriteBatch);
+
+            //only for development
             ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
@@ -336,8 +325,7 @@ namespace XnaTest
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             populatePresent();
-
-            updateAnimationModel(gameTime);
+            //updateAnimationModel(gameTime);   
 
             if (skeletonData != null)
             {
@@ -354,7 +342,7 @@ namespace XnaTest
                         {
                             if (!players.ContainsKey(i))
                             {
-                                Player newPlayer = new Player();
+                                Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
                                 newPlayer.inputPosition = new KinectController(0, 0, 0);
                                 initPlankBody(newPlayer);
                                 players.Add(i, newPlayer);
@@ -366,8 +354,7 @@ namespace XnaTest
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
                             skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
                             new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
-                        updatePlankPositionVectors(players[i]);
-                        updateBodyFixedJoints(players[i]);
+                        players[i].update();
                     }
                     else
                     {
@@ -387,19 +374,11 @@ namespace XnaTest
             {
                 initialPlayer.inputPosition.HandleInput(
                             gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
-                updatePlankPositionVectors(initialPlayer);
-                updateBodyFixedJoints(initialPlayer);
+                initialPlayer.update();
             }
 
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        private static void updateBodyFixedJoints(Player player)
-        {
-            player.fixedMouseJointL.WorldAnchorB = player.leftPlankPosition.convertToVector2();
-            player.fixedMouseJointC.WorldAnchorB = player.centralPlankPosition.convertToVector2();
-            player.fixedMouseJointR.WorldAnchorB = player.rightPlankPosition.convertToVector2();
         }
 
         private void update3DModel(GameTime gameTime)//TODO update this after fixing model animation
