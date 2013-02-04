@@ -17,6 +17,7 @@ using XnaTest.Character.Controller;
 using XnaTest.Character.Characters;
 using FarseerPhysics.Common.Decomposition;
 using FarseerPhysics.Common.PolygonManipulation;
+using XnaTest.Utils;
 
 namespace XnaTest
 {
@@ -28,7 +29,7 @@ namespace XnaTest
     /// </summary>
     internal class InitialGame : PhysicsGameScreen, IDemoScreen
     {
-        private int result = 0;
+        private GameMode gameMode = GameMode.ONE_PLAYER;
         private const int generatePresentsInterval = 4; //time in seconds
         
         private const int borderSize = 10;
@@ -67,6 +68,9 @@ namespace XnaTest
         private Texture2D basketCoverTexture;
         private Body basketCoverBody;
         private Sprite basketCoverSprite;
+        private List<XnaTest.ComplexBodies.Basket> baskets;
+
+
 
         KinectSensor kinect;
         Skeleton[] skeletonData;
@@ -151,7 +155,8 @@ namespace XnaTest
             scoreColors[0] = Color.Red;
             scoreColors[1] = Color.Yellow;
 
-            initialPlayer.basketId = createBasket();
+            baskets = new List<ComplexBodies.Basket>();
+            initialPlayer.basketId = createBasket(new Vector2((int)(-ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3));
 
 
             presentBodies = new List<Body>();
@@ -268,15 +273,27 @@ namespace XnaTest
 
             drawBackground();
 
-            int playerCounter = 0;
+            
             if (players.Count > 0)
             {
-                foreach (Player player in players.Values)
+                if (gameMode == GameMode.TWO_PLAYERS_VS)
                 {
-                    drawPlayer(player);
-                    ScreenManager.SpriteBatch.DrawString(scoreFont, "Player" + (playerCounter+1).ToString() + " score: " + initialPlayer.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
-                    yScorePosition = 20 + (int)scoreFont.MeasureString("Player" + (playerCounter + 1).ToString() + " score: ").Y * playerCounter;
-                    playerCounter++;
+                    int playerCounter = 0;
+                    foreach (Player player in players.Values)
+                    {
+                        drawPlayer(player);
+                        ScreenManager.SpriteBatch.DrawString(scoreFont, "Player" + (playerCounter + 1).ToString() + " score: " + player.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
+                        yScorePosition = 20 + (int)scoreFont.MeasureString("Player" + (playerCounter + 1).ToString() + " score: ").Y * playerCounter;
+                        playerCounter++;
+                    }
+                }
+                else
+                {
+                    foreach (Player player in players.Values)
+                    {
+                        drawPlayer(player);
+                        ScreenManager.SpriteBatch.DrawString(scoreFont, "Player1 score: " + player.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
+                    }
                 }
             }
             else
@@ -294,14 +311,18 @@ namespace XnaTest
             }
 
             // draw basket and cover
-            ScreenManager.SpriteBatch.Draw(basketTexture, ConvertUnits.ToDisplayUnits(basketBody.Position),
+            foreach (XnaTest.ComplexBodies.Basket basket in baskets)
+            {
+                ScreenManager.SpriteBatch.Draw(basketTexture, ConvertUnits.ToDisplayUnits(basket.basketBody.Position),
                     null,
-                    Color.White, basketBody.Rotation, ConvertUnits.ToDisplayUnits(basketSprite.Origin), 1f,
+                    Color.White, basket.basketBody.Rotation, ConvertUnits.ToDisplayUnits(basketSprite.Origin), 1f,
                     SpriteEffects.None, 0f);
-            ScreenManager.SpriteBatch.Draw(basketCoverTexture, ConvertUnits.ToDisplayUnits(basketCoverBody.Position),
-                    null,
-                    Color.White, basketCoverBody.Rotation, ConvertUnits.ToDisplayUnits(basketCoverSprite.Origin), 1f,
-                    SpriteEffects.None, 0f);
+                ScreenManager.SpriteBatch.Draw(basketCoverTexture, ConvertUnits.ToDisplayUnits(basket.basketCoverBody.Position),
+                        null,
+                        Color.White, basket.basketCoverBody.Rotation, ConvertUnits.ToDisplayUnits(basketCoverSprite.Origin), 1f,
+                        SpriteEffects.None, 0f);
+            }
+
 
             List<double> explosionsToRemove = new List<double>();
             foreach (double timestamp in explosionTimesLocationsMapping.Keys)
@@ -369,6 +390,16 @@ namespace XnaTest
                                 Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
                                 newPlayer.inputPosition = new KinectController(0, 0, 0);
                                 initPlankBody(newPlayer);
+                                gameMode = GameMode.TWO_PLAYERS_VS;
+                                if (gameMode == GameMode.TWO_PLAYERS_VS)
+                                {
+                                    newPlayer.basketId = createBasket(new Vector2((int)(ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3));
+                                }
+                                else
+                                {
+                                    // they have the same basket (later when adding score it will add it for both players)
+                                    newPlayer.basketId = initialPlayer.basketId;
+                                }
                                 players.Add(i, newPlayer);
                             }
                         }
@@ -441,91 +472,18 @@ namespace XnaTest
             presentsStopwatch = Stopwatch.StartNew();
         }
 
-
-        // Slaven, it requires more cleaning
-        // parses picture and creates vertices based on the colors
-        private Vertices getVertices (Texture2D polygonTexture) 
-        {
-            //Create an array to hold the data from the texture
-            uint[] data = new uint[polygonTexture.Width * polygonTexture.Height];
-
-            //Transfer the texture data to the array
-            polygonTexture.GetData(data);
-
-            //Find the vertices that makes up the outline of the shape in the texture
-            Vertices verts = PolygonTools.CreatePolygon(data, polygonTexture.Width, true);// .CreatePolygon(data, polygonTexture.Width, polygonTexture.Height, true);
-
-            //Vector2 scale = new Vector2(0.07f, 0.07f);
-            //verts.Scale(ref scale);
-
-            return verts;
-        }
-
-        // Slaven, it requires more cleaning
-        // parses picture and creates polygon based on the colors
-        public static Body ImageToPolygonBody(Texture2D texture, World world, float density, float scale_, ref Vector2 polygonOrigin)
-        {
-            //Create an array to hold the data from the texture
-            uint[] data = new uint[(texture.Width) * (texture.Height)];
-
-            //Collect data from bitmap
-            texture.GetData(data);
-
-            //Create Polygon from Bitmap
-            Vertices verts = PolygonTools.CreatePolygon(data, (texture.Width), false);
-
-            //Make sure that the origin of the texture is the centroid (real center of geometry)
-            Vector2 scale = new Vector2(ConvertUnits.ToSimUnits(scale_), ConvertUnits.ToSimUnits(scale_));
-            verts.Scale(ref scale);
-
-            //Make sure that the origin of the texture is the centroid (real center of geometry)
-            polygonOrigin = verts.GetCentroid();
-
-            //Translate the polygon so that it aligns properly with centroid.
-            Vector2 vertsTranslate = -polygonOrigin;
-            verts.Translate(ref vertsTranslate);
-
-            //We simplify the vertices found in the texture.
-            verts = SimplifyTools.ReduceByDistance(verts, 4f);
-
-            //Decompose polygon into smaller chuncks that Farseer can process better
-            List<Vertices> list;
-            list = BayazitDecomposer.ConvexPartition(verts);
-
-            //Create a body
-            return BodyFactory.CreateCompoundPolygon(world, list, density);
-
-
-        }
-
-        private int createBasket()
+        private int createBasket(Vector2 position)
         {
             basketTexture = ScreenManager.Content.Load<Texture2D>("wired_basket");
-
-            Vector2 basketPolygon = new Vector2(basketTexture.Width/2, basketTexture.Height/2);
-            basketBody = ImageToPolygonBody(basketTexture, World, 1f, 1, ref basketPolygon);
-            basketBody.Mass = 0;
-            basketBody.Position = new Vector2((int)(-ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3);
-            basketBody.CollidesWith = Category.Cat1;
-            basketBody.CollisionCategories = Category.Cat5;
-            basketBody.BodyType = BodyType.Static;
-
-            basketSprite = new Sprite(ScreenManager.Assets.TextureFromVertices(getVertices(basketTexture), MaterialType.Squares, Color.Orange, 1f));
-
-            // create cover which will colide with presents
             basketCoverTexture = ScreenManager.Content.Load<Texture2D>("wired_basket_cover");
 
-            Vector2 basketCoverPolygon = new Vector2(basketCoverTexture.Width / 2, basketCoverTexture.Height / 2);
-            basketCoverBody = BodyFactory.CreateRectangle(World, basketCoverTexture.Width, basketCoverTexture.Height, 1);// ImageToPolygonBody(basketCoverTexture, World, 1f, 1, ref basketCoverPolygon);
-            basketCoverBody.Mass = 0;
-            basketCoverBody.Position = new Vector2(basketBody.Position.X, basketBody.Position.Y - basketTexture.Height / 2);
-            basketCoverBody.BodyType = BodyType.Static;
-            basketCoverBody.CollisionCategories = Category.Cat5;
-            basketCoverBody.CollidesWith = Category.Cat1;
+            XnaTest.ComplexBodies.Basket basket = new XnaTest.ComplexBodies.Basket(position, basketTexture, basketCoverTexture, World, Category.Cat1, Category.Cat5);
+            baskets.Add(basket);
 
-            basketCoverSprite = new Sprite(ScreenManager.Assets.TextureFromShape(basketCoverBody.FixtureList[0].Shape, MaterialType.Squares, Color.Orange, 1f));
+            basketSprite = new Sprite(ScreenManager.Assets.TextureFromVertices(TextureParser.GetVertices(basketTexture), MaterialType.Squares, Color.Orange, 1f));
+            basketCoverSprite = new Sprite(ScreenManager.Assets.TextureFromShape(basket.basketCoverBody.FixtureList[0].Shape, MaterialType.Squares, Color.Orange, 1f));
 
-            return basketCoverBody.BodyId;
+            return basket.basketCoverBody.BodyId;
         }
 
         bool presentBody_OnCollision(Fixture fixtureA, Fixture fixtureB, FarseerPhysics.Dynamics.Contacts.Contact contact)
@@ -544,6 +502,7 @@ namespace XnaTest
             {
                 foreach (Player player in players.Values)
                 {
+                    // in 2players co it will add for both players
                     if (fixtureB.Body.BodyId == player.basketId)
                     {
                         bodyIdToRemove = fixtureA.Body.BodyId;
