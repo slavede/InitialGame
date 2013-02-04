@@ -14,7 +14,6 @@ using Microsoft.Kinect;
 using Microsoft.Xna.Framework.Input;
 using XnaTest.Character;
 using XnaTest.Character.Controller;
-using SkinnedModel;
 using XnaTest.Character.Characters;
 using FarseerPhysics.Common.Decomposition;
 using FarseerPhysics.Common.PolygonManipulation;
@@ -74,16 +73,11 @@ namespace XnaTest
         Skeleton skeleton;
         private Texture2D jointTexture;
 
-        Model myModel;
         // Set the position of the model in world space, and set the rotation.
         Vector3 modelPosition = Vector3.Zero;
-        float modelRotation = 0.0f;
         // Set the position of the camera in world space, for our view matrix.
         Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 5000);
-        // The aspect ratio determines how to scale 3d to 2d projection.
-        float aspectRatio;
-        private Matrix[] boneTransforms;
-        private SkinningData skinningData;
+
 
         #region IDemoScreen Members
 
