@@ -78,6 +78,10 @@ namespace XnaTest
         // Set the position of the camera in world space, for our view matrix.
         Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 5000);
 
+        private SpriteFont scoreFont;
+        private Color[] scoreColors;
+        private int xScorePosition;
+        private int yScorePosition;
 
         #region IDemoScreen Members
 
@@ -140,8 +144,14 @@ namespace XnaTest
             background = ScreenManager.Content.Load<Texture2D>("background");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
 
-            
-            createBasket();
+            xScorePosition = -ScreenManager.GraphicsDevice.Viewport.Width / 2 + 20;
+            yScorePosition = -ScreenManager.GraphicsDevice.Viewport.Height / 2 + 20;
+            scoreFont = ScreenManager.Content.Load<SpriteFont>("Font");
+            scoreColors = new Color[2];
+            scoreColors[0] = Color.Red;
+            scoreColors[1] = Color.Yellow;
+
+            initialPlayer.basketId = createBasket();
 
 
             presentBodies = new List<Body>();
@@ -258,16 +268,21 @@ namespace XnaTest
 
             drawBackground();
 
+            int playerCounter = 0;
             if (players.Count > 0)
             {
                 foreach (Player player in players.Values)
                 {
                     drawPlayer(player);
+                    ScreenManager.SpriteBatch.DrawString(scoreFont, "Player" + (playerCounter+1).ToString() + " score: " + initialPlayer.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
+                    yScorePosition = 20 + (int)scoreFont.MeasureString("Player" + (playerCounter + 1).ToString() + " score: ").Y * playerCounter;
+                    playerCounter++;
                 }
             }
             else
             {
                 drawPlayer(initialPlayer);
+                ScreenManager.SpriteBatch.DrawString(scoreFont, "Player1 score: " + initialPlayer.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
             }
 
             foreach (Body body in presentBodies)
@@ -483,7 +498,7 @@ namespace XnaTest
 
         }
 
-        private void createBasket()
+        private int createBasket()
         {
             basketTexture = ScreenManager.Content.Load<Texture2D>("wired_basket");
 
@@ -509,6 +524,8 @@ namespace XnaTest
             basketCoverBody.CollidesWith = Category.Cat1;
 
             basketCoverSprite = new Sprite(ScreenManager.Assets.TextureFromShape(basketCoverBody.FixtureList[0].Shape, MaterialType.Squares, Color.Orange, 1f));
+
+            return basketCoverBody.BodyId;
         }
 
         bool presentBody_OnCollision(Fixture fixtureA, Fixture fixtureB, FarseerPhysics.Dynamics.Contacts.Contact contact)
@@ -523,12 +540,26 @@ namespace XnaTest
                 bodyToRemove = fixtureA.Body;
             }
 
-            if (fixtureB.Body.BodyId == basketCoverBody.BodyId)
+            if (players.Count > 0)
             {
-                // it has hit basket on top
-                bodyIdToRemove = fixtureA.Body.BodyId;
-                bodyToRemove = fixtureA.Body;
-                result++;
+                foreach (Player player in players.Values)
+                {
+                    if (fixtureB.Body.BodyId == player.basketId)
+                    {
+                        bodyIdToRemove = fixtureA.Body.BodyId;
+                        bodyToRemove = fixtureA.Body;
+                        player.addPoints(1);
+                    }
+                }
+            }
+            else
+            {
+                if (fixtureB.Body.BodyId == initialPlayer.basketId)
+                {
+                    bodyIdToRemove = fixtureA.Body.BodyId;
+                    bodyToRemove = fixtureA.Body;
+                    initialPlayer.addPoints(1);
+                }
             }
 
             if (bodyIdToRemove != -1)

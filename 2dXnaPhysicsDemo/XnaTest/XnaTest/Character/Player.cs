@@ -15,6 +15,7 @@ namespace XnaTest.Character
     {
         public const float plankHeightPosition = 100f;
         public const int plankLength = 150;
+        private int result;
 
         public Player(CharacterSprite characterSprite)
         {
@@ -22,6 +23,7 @@ namespace XnaTest.Character
             leftPlankPosition = new Vector();
             rightPlankPosition = new Vector();
             this.characterSprite = characterSprite;
+            this.result = 0;
         }
 
         public CharacterSprite characterSprite { get; set; }
@@ -41,6 +43,8 @@ namespace XnaTest.Character
         public FixedMouseJoint fixedMouseJointC { get; set; }
 
         public FixedMouseJoint fixedMouseJointR { get; set; }
+
+        public int basketId { get; set; }
 
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -70,6 +74,16 @@ namespace XnaTest.Character
             updatePlankPositionVectors();
             updateBodyFixedJoints();
             characterSprite.Update(plankBody.Rotation);
+        }
+
+        public void addPoints(int points)
+        {
+            result += points;
+        }
+
+        public int getPoints()
+        {
+            return result;
         }
     }
 }
