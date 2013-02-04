@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Input;
 using XnaTest.Character;
 using XnaTest.Character.Controller;
 using SkinnedModel;
+using XnaTest.Character.Characters;
 using FarseerPhysics.Common.Decomposition;
 using FarseerPhysics.Common.PolygonManipulation;
 
@@ -30,8 +31,7 @@ namespace XnaTest
     {
         private int result = 0;
         private const int generatePresentsInterval = 4; //time in seconds
-        private const float plankHeightPosition = 100f;
-        private const int plankLength = 150;
+        
         private const int borderSize = 10;
         private const int explosionStays = 50; // time in miliseconds
         //TODO remove after development
@@ -84,7 +84,6 @@ namespace XnaTest
         float aspectRatio;
         private Matrix[] boneTransforms;
         private SkinningData skinningData;
-        private AnimationPlayer animationPlayer;
 
         #region IDemoScreen Members
 
@@ -126,16 +125,15 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            initialPlayer = new Player();
-            players = new Dictionary<int, Player>();
+            initialPlayer = new Player(new Majlo(ScreenManager.Content));       
 
-            LoadAnimationContent();
+            players = new Dictionary<int, Player>();
 
             if (KinectSensor.KinectSensors.Count > 0)
             {
                 kinect = KinectSensor.KinectSensors[0];
                 kinect.SkeletonStream.Enable();
-                kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
+                kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinectSkeletonFrameReady);
                 kinect.Start();
 
                 initialPlayer.inputPosition = new KinectController(0, 0, 0);
@@ -199,7 +197,7 @@ namespace XnaTest
                                                                                 Color.Orange, 1f));
         }
 
-        void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        void kinectSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
@@ -216,22 +214,11 @@ namespace XnaTest
             }
         }
 
-        private void updatePlankPositionVectors(Player player)
-        {
-            //TODO fetch constants from plank body
-            player.centralPlankPosition.X = player.inputPosition.getX();
-            player.centralPlankPosition.Y = plankHeightPosition;
-            player.leftPlankPosition.X = player.inputPosition.getX() - plankLength / 2;
-            player.leftPlankPosition.Y = plankHeightPosition + player.inputPosition.getDeltaY();
-            player.rightPlankPosition.X = player.inputPosition.getX() + plankLength / 2;
-            player.rightPlankPosition.Y = plankHeightPosition - player.inputPosition.getDeltaY();
-        }
-
         private void initPlankBody(Player player)
         {
-            updatePlankPositionVectors(player);
+            player.updatePlankPositionVectors();
 
-            player.plankBody = BodyFactory.CreateRectangle(World, plankLength, 10, 100f);
+            player.plankBody = BodyFactory.CreateRectangle(World, Player.plankLength, 10, 100f);
             player.plankBody.CollisionCategories = Category.Cat2;
             player.plankBody.CollidesWith = Category.Cat1 | Category.Cat4;
             player.plankBody.Position = player.centralPlankPosition.convertToVector2();
@@ -270,7 +257,6 @@ namespace XnaTest
                 }
             }
         }
-
 
         public override void Draw(GameTime gameTime)
         {
@@ -327,9 +313,6 @@ namespace XnaTest
             DrawSkeleton(ScreenManager.SpriteBatch, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), jointTexture);
 
             ScreenManager.SpriteBatch.End();
-
-            drawAnimationModel();
-
             base.Draw(gameTime);
         }
 
@@ -347,10 +330,9 @@ namespace XnaTest
 
         private void drawPlayer(Player player)
         {
-            ScreenManager.SpriteBatch.Draw(plankBodySprite.Texture, ConvertUnits.ToDisplayUnits(player.plankBody.Position),
-                               null,
-                               Color.White, player.plankBody.Rotation, plankBodySprite.Origin, 1f,
-                               SpriteEffects.None, 0f);
+            player.Draw(ScreenManager.SpriteBatch);
+
+            //only for development
             ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
             ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
@@ -359,8 +341,6 @@ namespace XnaTest
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             populatePresent();
-
-            updateAnimationModel(gameTime);
 
             if (skeletonData != null)
             {
@@ -377,7 +357,7 @@ namespace XnaTest
                         {
                             if (!players.ContainsKey(i))
                             {
-                                Player newPlayer = new Player();
+                                Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
                                 newPlayer.inputPosition = new KinectController(0, 0, 0);
                                 initPlankBody(newPlayer);
                                 players.Add(i, newPlayer);
@@ -389,8 +369,7 @@ namespace XnaTest
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
                             skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
                             new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
-                        updatePlankPositionVectors(players[i]);
-                        updateBodyFixedJoints(players[i]);
+                        players[i].update();
                     }
                     else
                     {
@@ -410,26 +389,11 @@ namespace XnaTest
             {
                 initialPlayer.inputPosition.HandleInput(
                             gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
-                updatePlankPositionVectors(initialPlayer);
-                updateBodyFixedJoints(initialPlayer);
+                initialPlayer.update();
             }
 
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        private static void updateBodyFixedJoints(Player player)
-        {
-            player.fixedMouseJointL.WorldAnchorB = player.leftPlankPosition.convertToVector2();
-            player.fixedMouseJointC.WorldAnchorB = player.centralPlankPosition.convertToVector2();
-            player.fixedMouseJointR.WorldAnchorB = player.rightPlankPosition.convertToVector2();
-        }
-
-        private void update3DModel(GameTime gameTime)//TODO update this after fixing model animation
-        {
-            modelPosition = new Vector3(initialPlayer.plankBody.Position.X, initialPlayer.plankBody.Position.Y, 0);
-            modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
-                MathHelper.ToRadians(0.1f);
         }
 
         private void populatePresent()
@@ -634,149 +598,5 @@ namespace XnaTest
             return texture;
         }
 
-        #region Animation
-
-        /// <summary>
-        /// Loads content necessary for Animation
-        /// </summary>
-        private void LoadAnimationContent()
-        {
-            //TODO: Obrisi ovo
-            aspectRatio = (float)ScreenManager.GraphicsDevice.Viewport.Width /
-           (float)ScreenManager.GraphicsDevice.Viewport.Height;
-
-            //Initialize model
-            myModel = ScreenManager.Content.Load<Model>("Models/DudeWithAnimations");
-
-            skinningData = myModel.Tag as SkinningData;
-            if (skinningData == null)
-                throw new InvalidOperationException
-                    ("This model does not contain a SkinningData tag.");
-            boneTransforms = new Matrix[skinningData.BindPose.Count];
-
-            // Create an animation player, and start decoding an animation clip.
-            animationPlayer = new AnimationPlayer(skinningData);
-            AnimationClip clip = skinningData.AnimationClips["Aim2"];
-            animationPlayer.StartClip(clip);
-
-        }
-
-        /// <summary>
-        /// Updates Animation Model
-        /// </summary>
-        private void updateAnimationModel(GameTime gameTime)
-        {
-            // Read gamepad inputs.
-            float headRotation = 0f; // currentGamePadState.ThumbSticks.Left.X;
-            float armRotation = 1f; // Math.Max(currentGamePadState.ThumbSticks.Left.Y, 0);
-
-            // Create rotation matrices for the head and arm bones.
-            Matrix headTransform = Matrix.CreateRotationX(headRotation);
-            Matrix armTransform = Matrix.CreateFromYawPitchRoll(5f, 0f, armRotation);
-
-            // Tell the animation player to compute the latest bone transform matrices.
-            animationPlayer.UpdateBoneTransforms(gameTime.ElapsedGameTime, true);
-
-            // Copy the transforms into our own array, so we can safely modify the values.
-            animationPlayer.GetBoneTransforms().CopyTo(boneTransforms, 0);
-
-            // Modify the transform matrices for the head and upper-left arm bones.
-            int headIndex = skinningData.BoneIndices["Head"];
-            int armIndex = skinningData.BoneIndices["L-Hand"];
-
-            boneTransforms[headIndex] = headTransform * boneTransforms[headIndex];
-            boneTransforms[armIndex] = armTransform * boneTransforms[armIndex];
-
-            // Tell the animation player to recompute the world and skin matrices.
-            animationPlayer.UpdateWorldTransforms(Matrix.Identity, boneTransforms);
-            animationPlayer.UpdateSkinTransforms();
-
-            //TODO obriši ovo
-            modelPosition = new Vector3(initialPlayer.plankBody.Position.X / 120, initialPlayer.plankBody.Position.Y / 120, 0);
-            modelRotation += (float)gameTime.ElapsedGameTime.TotalMilliseconds *
-                MathHelper.ToRadians(0.1f);
-        }
-
-        /// <summary>
-        /// Draw Animation Model
-        /// </summary>
-        private void drawAnimationModel()
-        {
-            Matrix[] bones = animationPlayer.GetSkinTransforms();
-
-            Matrix world = Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
-                         * Matrix.CreateTranslation(new Vector3(0, 1, 10))
-                         * Matrix.CreateTranslation(modelPosition);
-
-            // Compute camera matrices.
-            Matrix view = Matrix.CreateTranslation(0, -40, 0) *
-                          Matrix.CreateRotationY(MathHelper.ToRadians(0)) *
-                          Matrix.CreateRotationX(MathHelper.ToRadians(0)) *
-                          Matrix.CreateLookAt(new Vector3(0, 0, -100),
-                                              new Vector3(0, 0, 0), Vector3.Up) * Matrix.CreateTranslation(modelPosition);
-
-            Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                                                                    ScreenManager.GraphicsDevice.Viewport.AspectRatio,
-                                                                    1,
-                                                                    10000);
-
-            // Render the skinned mesh.
-            foreach (ModelMesh mesh in myModel.Meshes)
-            {
-                foreach (SkinnedEffect effect in mesh.Effects)
-                {
-                    effect.SetBoneTransforms(bones);
-
-                    effect.World = Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
-                                   * Matrix.CreateTranslation(new Vector3(0, -3f, -1))
-                                   * Matrix.CreateTranslation(modelPosition);
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
-                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
-                    ScreenManager.GraphicsDevice.Viewport.AspectRatio, 1.0f, 100.0f);
-
-                    //effect.World = world;
-                    //effect.View = view;
-                    //effect.Projection = projection;
-
-                    effect.EnableDefaultLighting();
-
-                    effect.SpecularColor = new Vector3(0.25f);
-                    effect.SpecularPower = 16;
-                }
-
-                mesh.Draw();
-            }
-
-            // TODO Obriši ovo
-            /*
-            // Draw the model (to the rendertarget)
-            Matrix[] transforms = new Matrix[myModel.Bones.Count];
-            myModel.Bones["Neck"].Transform = Matrix.CreateTranslation(new Vector3(0, 20, 0)) * myModel.Bones["Neck"].Transform;
-            myModel.CopyAbsoluteBoneTransformsTo(transforms);
-
-            // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in myModel.Meshes)
-            {
-                // This is where the mesh orientation is set, as well 
-                // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index] * Matrix.CreateRotationX(MathHelper.ToRadians(-90f))
-                         * Matrix.CreateTranslation(new Vector3(0, -1, 0))
-                         * Matrix.CreateTranslation(modelPosition);
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
-                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
-                    (float)ScreenManager.GraphicsDevice.Viewport.Width / (float)ScreenManager.GraphicsDevice.Viewport.Height, 1.0f, 100.0f);
-                }
-                // Draw the mesh, using the effects set above.
-                mesh.Draw();
-            }
-            */
-
-        }
-
-
-        #endregion
     }
 }
