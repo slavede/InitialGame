@@ -20,8 +20,6 @@ namespace XnaTest.ComplexBodies
         public Texture2D basketCoverTexture { get; set; }
         public Body basketCoverBody {get; set;}
 
-        private int publicColissionId;
-
         public Basket(Vector2 position, Texture2D basketTexture, Texture2D basketCoverTexture, World world, Category collidesWith, Category myCategory)
         {
             Vector2 basketPolygon = new Vector2(basketTexture.Width / 2, basketTexture.Height / 2);
@@ -42,6 +40,8 @@ namespace XnaTest.ComplexBodies
             basketCoverBody.BodyType = BodyType.Static;
             basketCoverBody.CollisionCategories = Category.Cat5;
             basketCoverBody.CollidesWith = Category.Cat1;
+
+            
         }
     }
 }

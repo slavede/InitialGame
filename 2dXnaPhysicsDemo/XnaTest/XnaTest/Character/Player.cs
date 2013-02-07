@@ -45,6 +45,7 @@ namespace XnaTest.Character
         public FixedMouseJoint fixedMouseJointR { get; set; }
 
         public int basketId { get; set; }
+        public int collisionId { get; set; }
 
         public void Draw(SpriteBatch spriteBatch)
         {

@@ -52,7 +52,6 @@ namespace XnaTest
         private Body wallR;
 
         private Dictionary<int, Player> players;
-        private Player initialPlayer; //because if no skeletons, one should be present
 
         private Sprite plankBodySprite;
         private Texture2D circleTexture;
@@ -63,13 +62,10 @@ namespace XnaTest
         private Texture2D explosionTexture;
 
         private Texture2D basketTexture;
-        private Body basketBody;
         private Sprite basketSprite;
         private Texture2D basketCoverTexture;
-        private Body basketCoverBody;
         private Sprite basketCoverSprite;
         private List<XnaTest.ComplexBodies.Basket> baskets;
-
 
 
         KinectSensor kinect;
@@ -127,10 +123,11 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            initialPlayer = new Player(new Majlo(ScreenManager.Content));       
+            Player initialPlayer = new Player(new Majlo(ScreenManager.Content));       
 
             players = new Dictionary<int, Player>();
 
+            baskets = new List<ComplexBodies.Basket>();
             if (KinectSensor.KinectSensors.Count > 0)
             {
                 kinect = KinectSensor.KinectSensors[0];
@@ -143,6 +140,8 @@ namespace XnaTest
             else
             {
                 initialPlayer.inputPosition = new KeyboardController(0, 0);
+                initialPlayer.basketId = createBasket(new Vector2((int)(-ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3));
+                players.Add(0, initialPlayer);
             }
 
             background = ScreenManager.Content.Load<Texture2D>("background");
@@ -155,10 +154,6 @@ namespace XnaTest
             scoreColors[0] = Color.Red;
             scoreColors[1] = Color.Yellow;
 
-            baskets = new List<ComplexBodies.Basket>();
-            initialPlayer.basketId = createBasket(new Vector2((int)(-ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3));
-
-
             presentBodies = new List<Body>();
             presentSpriteBodyMapping = new Dictionary<int, Sprite>();
             explosionsStopwatch = Stopwatch.StartNew();
@@ -170,7 +165,10 @@ namespace XnaTest
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_3_transparent"));
             presentTextures.Add(ScreenManager.Content.Load<Texture2D>("PresentPictures/present_4_transparent"));
 
-            initPlankBody(initialPlayer);
+            if (players.Count > 0)
+            {
+                initPlankBody(players[0]);
+            }
 
             initEdges();
             circleTexture = CreateCircle(5);
@@ -273,35 +271,25 @@ namespace XnaTest
 
             drawBackground();
 
-            
-            if (players.Count > 0)
+            if (gameMode == GameMode.TWO_PLAYERS_VS)
             {
-                if (gameMode == GameMode.TWO_PLAYERS_VS)
+                int playerCounter = 0;
+                foreach (Player player in players.Values)
                 {
-                    int playerCounter = 0;
-                    foreach (Player player in players.Values)
-                    {
-                        drawPlayer(player);
-                        ScreenManager.SpriteBatch.DrawString(scoreFont, "Player" + (playerCounter + 1).ToString() + " score: " + player.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
-                        yScorePosition = 20 + (int)scoreFont.MeasureString("Player" + (playerCounter + 1).ToString() + " score: ").Y * playerCounter;
-                        playerCounter++;
-                    }
-                }
-                else
-                {
-                    foreach (Player player in players.Values)
-                    {
-                        drawPlayer(player);
-                        ScreenManager.SpriteBatch.DrawString(scoreFont, "Player1 score: " + player.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
-                    }
+                    drawPlayer(player);
+                    ScreenManager.SpriteBatch.DrawString(scoreFont, "Player" + (playerCounter + 1).ToString() + " score: " + player.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
+                    yScorePosition = 20 + (int)scoreFont.MeasureString("Player" + (playerCounter + 1).ToString() + " score: ").Y * playerCounter;
+                    playerCounter++;
                 }
             }
             else
             {
-                drawPlayer(initialPlayer);
-                ScreenManager.SpriteBatch.DrawString(scoreFont, "Player1 score: " + initialPlayer.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
+                foreach (Player player in players.Values)
+                {
+                    drawPlayer(player);
+                    ScreenManager.SpriteBatch.DrawString(scoreFont, "Player1 score: " + player.getPoints().ToString(), new Vector2(xScorePosition, yScorePosition), Color.Red);
+                }
             }
-
             foreach (Body body in presentBodies)
             {
                 ScreenManager.SpriteBatch.Draw(presentSpriteBodyMapping[body.BodyId].Texture, ConvertUnits.ToDisplayUnits(body.Position),
@@ -379,29 +367,29 @@ namespace XnaTest
                     Skeleton skel = skeletonData[i];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
-                        if (players.Count == 0)
+                        if (!players.ContainsKey(i))
                         {
-                            players.Add(i, initialPlayer);
-                        }
-                        else
-                        {
-                            if (!players.ContainsKey(i))
+                            Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
+                            newPlayer.inputPosition = new KinectController(0, 0, 0);
+                            initPlankBody(newPlayer);
+                            gameMode = GameMode.TWO_PLAYERS_VS;
+                            if (gameMode == GameMode.TWO_PLAYERS_VS)
                             {
-                                Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
-                                newPlayer.inputPosition = new KinectController(0, 0, 0);
-                                initPlankBody(newPlayer);
-                                gameMode = GameMode.TWO_PLAYERS_VS;
-                                if (gameMode == GameMode.TWO_PLAYERS_VS)
+                                if (players.Count > 0)
                                 {
                                     newPlayer.basketId = createBasket(new Vector2((int)(ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3));
                                 }
                                 else
                                 {
-                                    // they have the same basket (later when adding score it will add it for both players)
-                                    newPlayer.basketId = initialPlayer.basketId;
+                                    newPlayer.basketId = createBasket(new Vector2(-(int)(ScreenManager.GraphicsDevice.Viewport.Width / 2.5), ScreenManager.GraphicsDevice.Viewport.Height / 3));
                                 }
-                                players.Add(i, newPlayer);
                             }
+                            else
+                            {
+                                // they have the same basket (later when adding score it will add it for both players)
+                                newPlayer.basketId = players[0].basketId;
+                            }
+                            players.Add(i, newPlayer);
                         }
                         skeleton = skel;
                         players[i].inputPosition.HandleInput(
@@ -416,20 +404,26 @@ namespace XnaTest
                         if (players.ContainsKey(i))
                         {
                             Player p = players[i];
-                            if (p != initialPlayer)
-                            {
-                                p.plankBody.Dispose();
-                            }
+                            p.plankBody.Dispose();
                             players.Remove(i);
+                            for (int basketCount = 0; basketCount < baskets.Count; basketCount++)
+                            {
+                                if (p.basketId == baskets[basketCount].basketCoverBody.BodyId)
+                                {
+                                    baskets[basketCount].basketBody.Dispose();
+                                    baskets.RemoveAt(basketCount);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
-            else
+            else if (players.Count > 0)
             {
-                initialPlayer.inputPosition.HandleInput(
+                players[0].inputPosition.HandleInput(
                             gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
-                initialPlayer.update();
+                players[0].update();
             }
 
 
@@ -498,8 +492,8 @@ namespace XnaTest
                 bodyToRemove = fixtureA.Body;
             }
 
-            if (players.Count > 0)
-            {
+           // if (players.Count > 0)
+        //    {
                 foreach (Player player in players.Values)
                 {
                     // in 2players co it will add for both players
@@ -510,16 +504,16 @@ namespace XnaTest
                         player.addPoints(1);
                     }
                 }
-            }
-            else
-            {
-                if (fixtureB.Body.BodyId == initialPlayer.basketId)
-                {
-                    bodyIdToRemove = fixtureA.Body.BodyId;
-                    bodyToRemove = fixtureA.Body;
-                    initialPlayer.addPoints(1);
-                }
-            }
+          //  }
+          //  else
+            //{
+            //    if (fixtureB.Body.BodyId == initialPlayer.basketId)
+            //    {
+            //        bodyIdToRemove = fixtureA.Body.BodyId;
+            //        bodyToRemove = fixtureA.Body;
+            //        initialPlayer.addPoints(1);
+            //    }
+            //}
 
             if (bodyIdToRemove != -1)
             {
