@@ -30,7 +30,11 @@ namespace XnaTest.Character.Controller
             yRightArm = (((-0.5f * rightHandJointPosition.Position.Y) + 0.5f) * (resolution.Y)) - resolution.Y / 2;
 
 
-            x += ((headJoint.Position.X - centerShoulderJoint.Position.X) * time * xChangeFactor);
+            if (x + ((headJoint.Position.X - centerShoulderJoint.Position.X) * time * xChangeFactor) > -resolution.X / 2 &&
+                x + ((headJoint.Position.X - centerShoulderJoint.Position.X) * time * xChangeFactor) < resolution.X / 2)
+            {
+                x += ((headJoint.Position.X - centerShoulderJoint.Position.X) * time * xChangeFactor);
+            }
         }
 
         public float getX()

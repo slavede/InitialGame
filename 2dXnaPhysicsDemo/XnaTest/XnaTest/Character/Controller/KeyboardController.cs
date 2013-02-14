@@ -38,34 +38,42 @@ namespace XnaTest.Character.Controller
             KeyboardState currentKeyboardState = Keyboard.GetState();
             float time = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            // Check for input to rotate the camera up and down around the model.
-            if (currentKeyboardState.IsKeyDown(Keys.Up))
+            if (currentKeyboardState.GetPressedKeys().Length > 0)
             {
-                y -= time * changeFactor;
-            }
 
-            if (currentKeyboardState.IsKeyDown(Keys.Down))
-            {
-                y += time * changeFactor;
-            }
+                // Check for input to rotate the camera up and down around the model.
+                if (currentKeyboardState.IsKeyDown(Keys.Up))
+                {
+                    y -= time * changeFactor;
+                }
 
-            if (currentKeyboardState.IsKeyDown(Keys.Right))
-            {
-                x += time * changeFactor;
-            }
+                if (currentKeyboardState.IsKeyDown(Keys.Down))
+                {
+                    y += time * changeFactor;
+                }
 
-            if (currentKeyboardState.IsKeyDown(Keys.Left))
-            {
-                x -= time * changeFactor;
-            }
+                if (currentKeyboardState.IsKeyDown(Keys.Right))
+                {
+                    if (x + time * changeFactor < resolution.X / 2)
+                    {
+                        x += time * changeFactor;
+                    }
+                }
 
-            if (currentKeyboardState.IsKeyDown(Keys.R))
-            {
-                x = initX;
-                y = initY;
-            }
+                if (currentKeyboardState.IsKeyDown(Keys.Left))
+                {
+                    if (x - time * changeFactor > -resolution.X / 2)
+                    {
+                        x -= time * changeFactor;
+                    }
+                }
 
-            //Console.Out.WriteLine(leftHandPosition + " " + rightHandPosition);
+                if (currentKeyboardState.IsKeyDown(Keys.R))
+                {
+                    x = initX;
+                    y = initY;
+                }
+            }
         }
     }
 }

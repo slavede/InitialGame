@@ -396,7 +396,7 @@ namespace XnaTest
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
                             skel.Joints[Microsoft.Kinect.JointType.Head], skel.Joints[Microsoft.Kinect.JointType.ShoulderCenter],
-                            new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height));
+                            new Vector2(ScreenManager.GraphicsDevice.Viewport.Width - players[i].getPlankLength(), ScreenManager.GraphicsDevice.Viewport.Height));
                         players[i].update();
                     }
                     else
@@ -419,10 +419,11 @@ namespace XnaTest
                     }
                 }
             }
+            // keyboard player
             else if (players.Count > 0)
             {
                 players[0].inputPosition.HandleInput(
-                            gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, emptyVector);
+                            gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width - players[0].getPlankLength(), ScreenManager.GraphicsDevice.Viewport.Height));
                 players[0].update();
             }
 
@@ -492,8 +493,6 @@ namespace XnaTest
                 bodyToRemove = fixtureA.Body;
             }
 
-           // if (players.Count > 0)
-        //    {
                 foreach (Player player in players.Values)
                 {
                     // in 2players co it will add for both players
@@ -504,16 +503,6 @@ namespace XnaTest
                         player.addPoints(1);
                     }
                 }
-          //  }
-          //  else
-            //{
-            //    if (fixtureB.Body.BodyId == initialPlayer.basketId)
-            //    {
-            //        bodyIdToRemove = fixtureA.Body.BodyId;
-            //        bodyToRemove = fixtureA.Body;
-            //        initialPlayer.addPoints(1);
-            //    }
-            //}
 
             if (bodyIdToRemove != -1)
             {

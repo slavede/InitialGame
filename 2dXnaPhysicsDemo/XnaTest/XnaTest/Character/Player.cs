@@ -49,7 +49,7 @@ namespace XnaTest.Character
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            characterSprite.Draw(spriteBatch, plankBody.Position); 
+            characterSprite.Draw(spriteBatch, plankBody.Position);
         }
 
         public void updatePlankPositionVectors()
@@ -85,6 +85,11 @@ namespace XnaTest.Character
         public int getPoints()
         {
             return result;
+        }
+
+        public int getPlankLength()
+        {
+            return plankLength;
         }
     }
 }
