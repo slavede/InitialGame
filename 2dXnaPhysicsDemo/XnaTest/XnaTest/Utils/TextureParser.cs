@@ -23,7 +23,7 @@ namespace XnaTest.Utils
             texture.GetData(data);
 
             //Create Polygon from Bitmap
-            Vertices verts = PolygonTools.CreatePolygon(data, (texture.Width), false);
+            Vertices verts = PolygonTools.CreatePolygon(data, (texture.Width), true);
 
             //Make sure that the origin of the texture is the centroid (real center of geometry)
             Vector2 scale = new Vector2(ConvertUnits.ToSimUnits(scale_), ConvertUnits.ToSimUnits(scale_));

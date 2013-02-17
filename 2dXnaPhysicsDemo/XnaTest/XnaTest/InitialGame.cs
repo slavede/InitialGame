@@ -36,7 +36,6 @@ namespace XnaTest
         private const int explosionStays = 50; // time in miliseconds
         //TODO remove after development
         private Microsoft.Kinect.Joint emptyJoint = new Microsoft.Kinect.Joint();
-        private Vector2 emptyVector = new Vector2();
 
         private Dictionary<int, Sprite> presentSpriteBodyMapping;
         private List<Texture2D> presentTextures;

@@ -117,6 +117,12 @@
     <Compile Include="Character\Controller\KinectController.cs" />
     <Compile Include="Character\Vector.cs" />
     <Compile Include="ComplexBodies\Basket.cs" />
+    <Compile Include="Menu\KinectWheelController.cs" />
+    <Compile Include="Menu\MouseWheelController.cs" />
+    <Compile Include="Menu\Wheel.cs" />
+    <Compile Include="Menu\WheelController.cs" />
+    <Compile Include="Menu\WheelDelegate.cs" />
+    <Compile Include="Menu\MainMenuScreen.cs" />
     <Compile Include="GameModes.cs" />
     <Compile Include="InitialGame.cs" />
     <Compile Include="Physics\Drawing\AssetCreator.cs" />
