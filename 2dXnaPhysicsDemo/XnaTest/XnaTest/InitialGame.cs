@@ -377,7 +377,7 @@ namespace XnaTest
                     {
                         // update the gesture controller
                         gestureControllerHandler.UpdateAllGestures(skel);
-                        if (gestureControllerHandler.Gesture != null)
+                        if (gestureControllerHandler.Gesture != null && gestureControllerHandler.Gesture.Equals("Joined Hands Anywhere"))
                         {
                             ScreenManager.AddScreen(new MainMenuScreen());
                         }
