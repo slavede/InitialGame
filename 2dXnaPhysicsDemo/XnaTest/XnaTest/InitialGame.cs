@@ -18,6 +18,11 @@ using XnaTest.Character.Characters;
 using FarseerPhysics.Common.Decomposition;
 using FarseerPhysics.Common.PolygonManipulation;
 using XnaTest.Utils;
+using Fizbin.Kinect.Gestures;
+using Fizbin.Kinect.Gestures.Segments;
+using System.ComponentModel;
+using XnaTest.Menu;
+
 
 namespace XnaTest
 {
@@ -81,6 +86,8 @@ namespace XnaTest
         private Color[] scoreColors;
         private int xScorePosition;
         private int yScorePosition;
+
+        private GestureControllerHandler gestureControllerHandler;
 
         #region IDemoScreen Members
 
@@ -177,6 +184,8 @@ namespace XnaTest
 
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
+            gestureControllerHandler = new GestureControllerHandler();
+            //gestureControllerHandler.GestureController.GestureRecognized += new EventHandler<GestureEventArgs>(GestureController_GestureRecognized);
             base.EnableCameraControl = false;
         }
 
@@ -366,6 +375,12 @@ namespace XnaTest
                     Skeleton skel = skeletonData[i];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
+                        // update the gesture controller
+                        gestureControllerHandler.UpdateAllGestures(skel);
+                        if (gestureControllerHandler.Gesture != null)
+                        {
+                            ScreenManager.AddScreen(new MainMenuScreen());
+                        }
                         if (!players.ContainsKey(i))
                         {
                             Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
@@ -390,7 +405,7 @@ namespace XnaTest
                             }
                             players.Add(i, newPlayer);
                         }
-                        skeleton = skel;
+
                         players[i].inputPosition.HandleInput(
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
@@ -563,6 +578,8 @@ namespace XnaTest
             texture.SetData(data);
             return texture;
         }
+
+
 
     }
 }
