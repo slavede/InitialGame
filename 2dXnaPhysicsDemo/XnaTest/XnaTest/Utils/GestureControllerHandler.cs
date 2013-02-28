@@ -25,7 +25,7 @@ namespace XnaTest.Utils
             // initialize the gesture recognizer
             GestureController = new GestureController();
             GestureController.GestureRecognized += OnGestureRecognized;
-
+            
 
             // add timer for clearing last detected gesture
             clearTimer = new Timer(2000);
@@ -42,12 +42,11 @@ namespace XnaTest.Utils
         {
             IRelativeGestureSegment[] joinedhandsSegments = new IRelativeGestureSegment[1];
             JoinedHandsAnywhere joinedhandsSegment = new JoinedHandsAnywhere();
-            for (int i = 0; i < 1; i++)
-            {
-                // gesture consists of the same thing 10 times 
-                joinedhandsSegments[i] = joinedhandsSegment;
-            }
+            // only once is enough
+            joinedhandsSegments[0] = joinedhandsSegment;
+
             GestureController.AddGesture("JoinedHandsAnywhere", joinedhandsSegments);
+
         }
 
         /// <summary>

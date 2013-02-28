@@ -117,7 +117,10 @@
     <Compile Include="Character\Controller\KinectController.cs" />
     <Compile Include="Character\Vector.cs" />
     <Compile Include="ComplexBodies\Basket.cs" />
+    <Compile Include="ComplexBodies\Keyboard.cs" />
+    <Compile Include="ComplexBodies\KeyboardLetter.cs" />
     <Compile Include="CustomHandGestures\JoinedHandsAnywhere.cs" />
+    <Compile Include="Menu\HighScoreScreen.cs" />
     <Compile Include="Menu\KinectWheelController.cs" />
     <Compile Include="Menu\MouseWheelController.cs" />
     <Compile Include="Menu\Wheel.cs" />
@@ -151,6 +154,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Utils\GestureControllerHandler.cs" />
+    <Compile Include="Utils\MathHelper.cs" />
     <Compile Include="Utils\TextureParser.cs" />
   </ItemGroup>
   <ItemGroup>
