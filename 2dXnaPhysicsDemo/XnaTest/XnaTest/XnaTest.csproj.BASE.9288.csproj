@@ -109,25 +109,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Character\Characters\ICharacterSprite.cs" />
+    <Compile Include="Character\Characters\CharacterSprite.cs" />
     <Compile Include="Character\Characters\Majlo.cs" />
-    <Compile Include="Character\Characters\VodafoneMascot.cs" />
     <Compile Include="Character\Player.cs" />
     <Compile Include="Character\Controller\CharacterController.cs" />
     <Compile Include="Character\Controller\KeyboardController.cs" />
     <Compile Include="Character\Controller\KinectController.cs" />
     <Compile Include="Character\Vector.cs" />
     <Compile Include="ComplexBodies\Basket.cs" />
-    <Compile Include="ComplexBodies\Keyboard.cs" />
-    <Compile Include="ComplexBodies\KeyboardLetter.cs" />
-    <Compile Include="CustomHandGestures\JoinedHandsAnywhere.cs" />
-    <Compile Include="Menu\HighScoreScreen.cs" />
-    <Compile Include="Menu\KinectWheelController.cs" />
-    <Compile Include="Menu\MouseWheelController.cs" />
-    <Compile Include="Menu\Wheel.cs" />
-    <Compile Include="Menu\WheelController.cs" />
-    <Compile Include="Menu\WheelDelegate.cs" />
-    <Compile Include="Menu\MainMenuScreen.cs" />
     <Compile Include="GameModes.cs" />
     <Compile Include="InitialGame.cs" />
     <Compile Include="Physics\Drawing\AssetCreator.cs" />
@@ -153,11 +142,7 @@
     <Compile Include="Physics\VirtualStick.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Game.cs" />    <Compile Include="Utils\GestureControllerHandler.cs" />
-    <Compile Include="Utils\MathHelper.cs" />
-    <Compile Include="Texture\TextureAtlas.cs" />
-    <Compile Include="Texture\TextureAtlasReader.cs" />
-    <Compile Include="Texture\TextureRegion.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Utils\TextureParser.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -172,10 +157,6 @@
     <ProjectReference Include="..\..\Farseer Physics Engine 3.3 XNA\Farseer Physics XNA.csproj">
       <Project>{0A850700-1ABB-4288-A391-6726B90EBEB9}</Project>
       <Name>Farseer Physics XNA</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Fizbin.Kinect.Gestures\Fizbin.Kinect.Gestures.csproj">
-      <Project>{7471719C-9BD5-42BA-B42B-BB5663EEBBC3}</Project>
-      <Name>Fizbin.Kinect.Gestures</Name>
     </ProjectReference>
     <ProjectReference Include="..\XnaTestContent\XnaTestContent.contentproj">
       <Name>XnaTestContent</Name>

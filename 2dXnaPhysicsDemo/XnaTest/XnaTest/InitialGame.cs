@@ -18,6 +18,12 @@ using XnaTest.Character.Characters;
 using FarseerPhysics.Common.Decomposition;
 using FarseerPhysics.Common.PolygonManipulation;
 using XnaTest.Utils;
+using Fizbin.Kinect.Gestures;
+using Fizbin.Kinect.Gestures.Segments;
+using System.ComponentModel;
+using XnaTest.Menu;
+using XnaTest.ComplexBodies;
+
 
 namespace XnaTest
 {
@@ -36,7 +42,6 @@ namespace XnaTest
         private const int explosionStays = 50; // time in miliseconds
         //TODO remove after development
         private Microsoft.Kinect.Joint emptyJoint = new Microsoft.Kinect.Joint();
-        private Vector2 emptyVector = new Vector2();
 
         private Dictionary<int, Sprite> presentSpriteBodyMapping;
         private List<Texture2D> presentTextures;
@@ -82,6 +87,8 @@ namespace XnaTest
         private Color[] scoreColors;
         private int xScorePosition;
         private int yScorePosition;
+
+        private GestureControllerHandler gestureControllerHandler;
 
         #region IDemoScreen Members
 
@@ -171,13 +178,19 @@ namespace XnaTest
             }
 
             initEdges();
-            circleTexture = CreateCircle(5);
+            int radius = 5;
+            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
+            Texture2D texture = new Texture2D(ScreenManager.GraphicsDevice, outerRadius, outerRadius);
+
+            circleTexture = TextureParser.CreateCircle(radius, outerRadius, texture);
             random = new Random();
 
             World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height / 15);
 
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
+            gestureControllerHandler = new GestureControllerHandler();
+            //gestureControllerHandler.GestureController.GestureRecognized += new EventHandler<GestureEventArgs>(GestureController_GestureRecognized);
             base.EnableCameraControl = false;
         }
 
@@ -367,6 +380,12 @@ namespace XnaTest
                     Skeleton skel = skeletonData[i];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
+                        // update the gesture controller
+                        gestureControllerHandler.UpdateAllGestures(skel);
+                        if (gestureControllerHandler.Gesture != null && gestureControllerHandler.Gesture.Equals("Joined Hands Anywhere"))
+                        {
+                            ScreenManager.AddScreen(new MainMenuScreen());
+                        }
                         if (!players.ContainsKey(i))
                         {
                             Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
@@ -391,7 +410,7 @@ namespace XnaTest
                             }
                             players.Add(i, newPlayer);
                         }
-                        skeleton = skel;
+
                         players[i].inputPosition.HandleInput(
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
@@ -537,33 +556,5 @@ namespace XnaTest
                 return true;
             }
         }
-
-        public Texture2D CreateCircle(int radius)
-        {
-            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
-            Texture2D texture = new Texture2D(ScreenManager.GraphicsDevice, outerRadius, outerRadius);
-
-            Color[] data = new Color[outerRadius * outerRadius];
-
-            // Colour the entire texture transparent first.
-            for (int i = 0; i < data.Length; i++)
-                data[i] = Color.Transparent;
-
-            // Work out the minimum step necessary using trigonometry + sine approximation.
-            double angleStep = 1f / radius;
-
-            for (double angle = 0; angle < Math.PI * 2; angle += angleStep)
-            {
-                // Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
-                int x = (int)Math.Round(radius + radius * Math.Cos(angle));
-                int y = (int)Math.Round(radius + radius * Math.Sin(angle));
-
-                data[y * outerRadius + x + 1] = Color.White;
-            }
-
-            texture.SetData(data);
-            return texture;
-        }
-
     }
 }

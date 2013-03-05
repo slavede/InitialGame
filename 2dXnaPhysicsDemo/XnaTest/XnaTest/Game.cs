@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using FarseerPhysics.SamplesFramework;
+using XnaTest.Menu;
 
 namespace XnaTest
 {
@@ -62,7 +63,13 @@ namespace XnaTest
             //ScreenManager.AddScreen(collisionTest);
 
             InitialGame initialGame = new InitialGame();
-            ScreenManager.AddScreen(initialGame);
+            //ScreenManager.AddScreen(initialGame);
+
+            MainMenuScreen mainMenuScreen = new MainMenuScreen();
+            //ScreenManager.AddScreen(mainMenuScreen);
+
+            HighScoreScreen highScoreScreen = new HighScoreScreen();
+            ScreenManager.AddScreen(highScoreScreen);
             
         }
 

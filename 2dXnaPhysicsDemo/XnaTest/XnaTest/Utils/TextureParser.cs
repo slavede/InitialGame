@@ -23,7 +23,7 @@ namespace XnaTest.Utils
             texture.GetData(data);
 
             //Create Polygon from Bitmap
-            Vertices verts = PolygonTools.CreatePolygon(data, (texture.Width), false);
+            Vertices verts = PolygonTools.CreatePolygon(data, (texture.Width), true);
 
             //Make sure that the origin of the texture is the centroid (real center of geometry)
             Vector2 scale = new Vector2(ConvertUnits.ToSimUnits(scale_), ConvertUnits.ToSimUnits(scale_));
@@ -62,6 +62,30 @@ namespace XnaTest.Utils
             //verts.Scale(ref scale);
 
             return verts;
+        }
+
+        public static Texture2D CreateCircle(int radius, int outerRadius, Texture2D texture)
+        {
+            Color[] data = new Color[outerRadius * outerRadius];
+
+            // Colour the entire texture transparent first.
+            for (int i = 0; i < data.Length; i++)
+                data[i] = Color.Transparent;
+
+            // Work out the minimum step necessary using trigonometry + sine approximation.
+            double angleStep = 1f / radius;
+
+            for (double angle = 0; angle < Math.PI * 2; angle += angleStep)
+            {
+                // Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
+                int x = (int)Math.Round(radius + radius * Math.Cos(angle));
+                int y = (int)Math.Round(radius + radius * Math.Sin(angle));
+
+                data[y * outerRadius + x + 1] = Color.White;
+            }
+
+            texture.SetData(data);
+            return texture;
         }
 
     }

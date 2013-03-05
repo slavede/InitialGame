@@ -23,7 +23,7 @@ namespace FarseerPhysics.SamplesFramework
         {
             TransitionOnTime = TimeSpan.FromSeconds(0.75);
             TransitionOffTime = TimeSpan.FromSeconds(0.75);
-            HasCursor = true;
+            HasCursor = false;
             EnableCameraControl = true;
             _userAgent = null;
             World = null;

@@ -187,6 +187,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="letter.png">
+      <Name>letter</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="circle_fill.png">
+      <Name>circle_fill</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CharacterSprites\Avatar.png">
       <Name>Avatar</Name>
       <Importer>TextureImporter</Importer>
