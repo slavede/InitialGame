@@ -17,7 +17,7 @@ namespace XnaTest.Character
         public const int plankLength = 150;
         private int result;
 
-        public Player(CharacterSprite characterSprite)
+        public Player(ICharacterSprite characterSprite)
         {
             centralPlankPosition = new Vector();
             leftPlankPosition = new Vector();
@@ -26,7 +26,7 @@ namespace XnaTest.Character
             this.result = 0;
         }
 
-        public CharacterSprite characterSprite { get; set; }
+        public ICharacterSprite characterSprite { get; set; }
 
         public Body plankBody { get; set; }
 

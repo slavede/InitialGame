@@ -153,11 +153,15 @@
     <Compile Include="Physics\VirtualStick.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Game.cs" />    <Compile Include="Utils\GestureControllerHandler.cs" />
-    <Compile Include="Utils\MathHelper.cs" />
+    <Compile Include="Game.cs" />
+<<<<<<< HEAD
     <Compile Include="Texture\TextureAtlas.cs" />
     <Compile Include="Texture\TextureAtlasReader.cs" />
     <Compile Include="Texture\TextureRegion.cs" />
+=======
+    <Compile Include="Utils\GestureControllerHandler.cs" />
+    <Compile Include="Utils\MathHelper.cs" />
+>>>>>>> 7801859b6a111247d74c91eb4793edb43ff3dc24
     <Compile Include="Utils\TextureParser.cs" />
   </ItemGroup>
   <ItemGroup>
