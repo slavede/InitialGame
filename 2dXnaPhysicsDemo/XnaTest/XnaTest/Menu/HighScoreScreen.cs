@@ -57,14 +57,21 @@ namespace XnaTest.Menu
 
             // Slaven, just for testing
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
-            
-            currentName = "slaven tomac dinamo zagreb";
+
+            currentName = "";
             currentNamePosition = new Vector2(0, -ScreenManager.GraphicsDevice.Viewport.Height / 8);
             scoreFont = ScreenManager.Content.Load<SpriteFont>("Font");
             keyboardPosition = new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 3, ScreenManager.GraphicsDevice.Viewport.Height / 8);
             keyboard = new KeyboardBody(keyboardPosition, World, ScreenManager, scoreFont);
 
             gestureControllerHandler = new GestureControllerHandler();
+            keyboard.ActivationChanged += new EventHandler(keyboard_ActivationChanged);
+        }
+
+        void keyboard_ActivationChanged(object sender, EventArgs e)
+        {
+            Console.WriteLine("CHANGED");
+            currentName += ((KeyboardLetter)sender).Letter;
         }
 
         void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
@@ -112,7 +119,7 @@ namespace XnaTest.Menu
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         skeletonToDraw = skel;
-                        keyboard.CheckHoveredLetters(skel.Joints[JointType.HandRight], ScreenManager);
+                        keyboard.CheckHoveredLetters(skel.Joints[JointType.HandLeft], skel.Joints[JointType.HandRight], ScreenManager);
                     }
                 }
             }

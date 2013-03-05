@@ -21,6 +21,8 @@ namespace XnaTest.ComplexBodies
 
         private SpriteFont scoreFont;
 
+        public event EventHandler ActivationChanged;
+
         /// <summary>
         /// 
         /// </summary>
@@ -95,6 +97,16 @@ namespace XnaTest.ComplexBodies
             letters.Add(new KeyboardLetter(position, letterTexture, letterFillTexture, world, "M", screenManager, scoreFont, Color.Yellow));
             position.X += xSpace;
             letters.Add(new KeyboardLetter(position, letterTexture, letterFillTexture, world, " ", screenManager, scoreFont, Color.Yellow));
+
+            foreach (KeyboardLetter letter in letters)
+            {
+                letter.ActivationChanged += new EventHandler(letter_ActivationChanged);
+            }
+        }
+
+        void letter_ActivationChanged(object sender, EventArgs e)
+        {
+            ActivationChanged(sender, null);
         }
 
         public void Draw(ScreenManager screenManager)
@@ -113,17 +125,20 @@ namespace XnaTest.ComplexBodies
             }
         }
 
-        public Boolean CheckHoveredLetters(Joint rightHandJoint, ScreenManager screenManager)
+        public Boolean CheckHoveredLetters(Joint leftHandJoint, Joint rightHandJoint, ScreenManager screenManager)
         {
             Vector2 resolution = new Vector2(screenManager.GraphicsDevice.Viewport.Width, screenManager.GraphicsDevice.Viewport.Height);
 
             //Vector2 rightHandPosition = new Vector2(rightHandJoint.Position.X, rightHandJoint.Position.Y);
             Vector2 rightHandPosition = new Vector2((((0.5f * rightHandJoint.Position.X) + 0.5f) * (resolution.X)) - screenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * rightHandJoint.Position.Y) + 0.5f) * (resolution.Y)) - screenManager.GraphicsDevice.Viewport.Height / 2);
+            Vector2 leftHandPosition = new Vector2((((0.5f * leftHandJoint.Position.X) + 0.5f) * (resolution.X)) - screenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * leftHandJoint.Position.Y) + 0.5f) * (resolution.Y)) - screenManager.GraphicsDevice.Viewport.Height / 2);
             foreach (KeyboardLetter keyboardLetter in letters)
             {
-                if (MathHelperMethods.DistanceBetweenTwoVector2(keyboardLetter.Position, rightHandPosition) < keyboardLetter.Radius)
+                if (MathHelperMethods.DistanceBetweenTwoVector2(keyboardLetter.Position, rightHandPosition) < keyboardLetter.Radius ||
+                    MathHelperMethods.DistanceBetweenTwoVector2(keyboardLetter.Position, leftHandPosition) < keyboardLetter.Radius)
                 {
                     keyboardLetter.IsHovered = true;
+                    return true;
                 }
                 else
                 {
@@ -132,5 +147,6 @@ namespace XnaTest.ComplexBodies
             }
             return false;
         }
+
     }
 }

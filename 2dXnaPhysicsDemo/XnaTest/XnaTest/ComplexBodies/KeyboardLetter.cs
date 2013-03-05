@@ -8,6 +8,7 @@ using FarseerPhysics.Dynamics;
 using FarseerPhysics.SamplesFramework;
 using FarseerPhysics.Factories;
 using XnaTest.Utils;
+using System.ComponentModel;
 
 namespace XnaTest.ComplexBodies
 {
@@ -15,7 +16,7 @@ namespace XnaTest.ComplexBodies
     {
         private Texture2D Texture {get; set; }
         public Vector2 Position { get; set; }
-        private String Letter { get; set; }
+        public String Letter { get; set; }
         private Sprite LetterSprite { get; set; }
         private Body LetterBody { get; set; }
 
@@ -45,7 +46,11 @@ namespace XnaTest.ComplexBodies
                 }
             }
         }
+
+        public event EventHandler ActivationChanged;
+
         private static float hoverStep = 0.01f;
+
         /// <summary>
         /// 
         /// </summary>
@@ -95,6 +100,15 @@ namespace XnaTest.ComplexBodies
             if (isHovered && (PercentageHovered + hoverStep) <= 1f)
             {
                 PercentageHovered += hoverStep;
+            }
+            else if (isHovered && (PercentageHovered + hoverStep) >= 1f)
+            {
+                PercentageHovered = 0f;
+                ActivationChanged(this, null);
+            }
+            else
+            {
+                PercentageHovered = 0;
             }
 
         }
