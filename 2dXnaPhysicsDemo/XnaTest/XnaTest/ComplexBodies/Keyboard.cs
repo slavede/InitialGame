@@ -39,7 +39,13 @@ namespace XnaTest.ComplexBodies
             xSpace = (float)(letterTexture.Width * 1.5);
             ySpace = (float)(letterTexture.Height * 1.5);
 
-            float tempX = position.X;
+            float tempX = position.X;  
+            letters.Add(new KeyboardLetter(position, letterTexture, letterFillTexture, world, "<-", screenManager, scoreFont, Color.Yellow));
+            position.X += xSpace;
+            letters.Add(new KeyboardLetter(position, letterTexture, letterFillTexture, world, "OK", screenManager, scoreFont, Color.Yellow));
+            
+            position.Y += ySpace;
+            position.X = tempX;
             letters.Add(new KeyboardLetter(position, letterTexture, letterFillTexture, world, "Q", screenManager, scoreFont, Color.Yellow));
             position.X += xSpace;
             letters.Add(new KeyboardLetter(position, letterTexture, letterFillTexture, world, "W", screenManager, scoreFont, Color.Yellow));

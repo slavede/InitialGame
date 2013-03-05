@@ -58,11 +58,13 @@ namespace XnaTest.Menu
             // Slaven, just for testing
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
-            currentName = "";
-            currentNamePosition = new Vector2(0, -ScreenManager.GraphicsDevice.Viewport.Height / 8);
+
             scoreFont = ScreenManager.Content.Load<SpriteFont>("Font");
-            keyboardPosition = new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 3, ScreenManager.GraphicsDevice.Viewport.Height / 8);
+            keyboardPosition = new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 3, -ScreenManager.GraphicsDevice.Viewport.Height / 8);
             keyboard = new KeyboardBody(keyboardPosition, World, ScreenManager, scoreFont);
+
+            currentName = "";
+            currentNamePosition = new Vector2(0, keyboardPosition.Y - ScreenManager.GraphicsDevice.Viewport.Height / 8);
 
             gestureControllerHandler = new GestureControllerHandler();
             keyboard.ActivationChanged += new EventHandler(keyboard_ActivationChanged);
@@ -70,8 +72,19 @@ namespace XnaTest.Menu
 
         void keyboard_ActivationChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("CHANGED");
-            currentName += ((KeyboardLetter)sender).Letter;
+            String activatedLetter = ((KeyboardLetter)sender).Letter;
+            if (activatedLetter.Equals("OK"))
+            {
+                currentName = "NOW WILL STORE NAME AND TRIGGER SOMETHING - this is just for demo";
+            }
+            else if (activatedLetter.Equals("<-"))
+            {
+                currentName = currentName.Remove(currentName.Length - 1);
+            }
+            else
+            {
+                currentName += ((KeyboardLetter)sender).Letter;
+            }
         }
 
         void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
@@ -128,7 +141,7 @@ namespace XnaTest.Menu
                 skeletonToDraw = null;
             }
 
-            currentNamePosition = new Vector2(-scoreFont.MeasureString(currentName).X / 2, -ScreenManager.GraphicsDevice.Viewport.Height / 8);
+            currentNamePosition.X = -scoreFont.MeasureString(currentName).X / 2;
 
             keyboard.Update();
             

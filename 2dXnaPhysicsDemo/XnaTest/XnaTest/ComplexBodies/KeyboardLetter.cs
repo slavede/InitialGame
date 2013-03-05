@@ -92,7 +92,8 @@ namespace XnaTest.ComplexBodies
                 Color.White, LetterBody.Rotation, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), PercentageHovered,
                 SpriteEffects.None, 0f);
 
-            screenManager.SpriteBatch.DrawString(letterFont, Letter, new Vector2(positionToDraw.X - Texture.Width / 5, positionToDraw.Y - Texture.Height / 3), color);
+
+            screenManager.SpriteBatch.DrawString(letterFont, Letter, new Vector2(positionToDraw.X - letterFont.MeasureString(Letter).X/2, positionToDraw.Y - letterFont.MeasureString(Letter).Y/2), color);
         }
 
         public void Update()
