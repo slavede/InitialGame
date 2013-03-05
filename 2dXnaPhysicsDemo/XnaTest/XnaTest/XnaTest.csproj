@@ -109,8 +109,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Character\Characters\CharacterSprite.cs" />
+    <Compile Include="Character\Characters\ICharacterSprite.cs" />
     <Compile Include="Character\Characters\Majlo.cs" />
+    <Compile Include="Character\Characters\VodafoneMascot.cs" />
     <Compile Include="Character\Player.cs" />
     <Compile Include="Character\Controller\CharacterController.cs" />
     <Compile Include="Character\Controller\KeyboardController.cs" />
@@ -143,6 +144,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Texture\TextureAtlas.cs" />
+    <Compile Include="Texture\TextureAtlasReader.cs" />
+    <Compile Include="Texture\TextureRegion.cs" />
     <Compile Include="Utils\TextureParser.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -123,7 +123,7 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            Player initialPlayer = new Player(new Majlo(ScreenManager.Content));       
+            Player initialPlayer = new Player(new VodafoneMascot(ScreenManager.Content));       
 
             players = new Dictionary<int, Player>();
 
