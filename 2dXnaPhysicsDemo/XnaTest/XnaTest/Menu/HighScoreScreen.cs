@@ -81,6 +81,7 @@ namespace XnaTest.Menu
 
             dbConnection = new SQLiteConnection("Data Source=../../../../../db/KinectPong.sqlite;Version=3;");
             insertHighscoreCommand = new SQLiteCommand("INSERT INTO high_scores (name, result) VALUES (?, ?)", dbConnection);
+
         }
 
         void keyboard_ActivationChanged(object sender, EventArgs e)
@@ -96,7 +97,10 @@ namespace XnaTest.Menu
             }
             else if (activatedLetter.Equals("<-"))
             {
-                currentName = currentName.Remove(currentName.Length - 1);
+                if (currentName.Length > 0)
+                {
+                    currentName = currentName.Remove(currentName.Length - 1);
+                }
             }
             else
             {
