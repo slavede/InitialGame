@@ -8,10 +8,11 @@ using XnaTest.ComplexBodies;
 using Microsoft.Xna.Framework.Graphics;
 using XnaTest.Utils;
 using Microsoft.Kinect;
+using System.Data.SQLite;
 
 namespace XnaTest.Menu
 {
-    internal class HighScoreScreen : PhysicsGameScreen, IDemoScreen
+    internal class EnterHighScoreScreen : PhysicsGameScreen, IDemoScreen
     {
         private String currentName;
         private Vector2 currentNamePosition;
@@ -27,6 +28,11 @@ namespace XnaTest.Menu
         // Slaven, just for testing
         Skeleton skeletonToDraw;
         Texture2D jointTexture;
+
+        private long scoreToEnter;
+
+        private SQLiteConnection dbConnection;
+        private SQLiteCommand insertHighscoreCommand;
         
         #region IDemoScreen Members
 
@@ -41,6 +47,11 @@ namespace XnaTest.Menu
         }
 
         #endregion
+
+        public EnterHighScoreScreen(long scoreToEnter) : base()
+        {
+            this.scoreToEnter = scoreToEnter;
+        }
 
         public override void LoadContent()
         {
@@ -58,7 +69,6 @@ namespace XnaTest.Menu
             // Slaven, just for testing
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
-
             scoreFont = ScreenManager.Content.Load<SpriteFont>("Font");
             keyboardPosition = new Vector2(-ScreenManager.GraphicsDevice.Viewport.Width / 3, -ScreenManager.GraphicsDevice.Viewport.Height / 8);
             keyboard = new KeyboardBody(keyboardPosition, World, ScreenManager, scoreFont);
@@ -68,6 +78,9 @@ namespace XnaTest.Menu
 
             gestureControllerHandler = new GestureControllerHandler();
             keyboard.ActivationChanged += new EventHandler(keyboard_ActivationChanged);
+
+            dbConnection = new SQLiteConnection("Data Source=../../../../../db/KinectPong.sqlite;Version=3;");
+            insertHighscoreCommand = new SQLiteCommand("INSERT INTO high_scores (name, result) VALUES (?, ?)", dbConnection);
         }
 
         void keyboard_ActivationChanged(object sender, EventArgs e)
@@ -75,7 +88,11 @@ namespace XnaTest.Menu
             String activatedLetter = ((KeyboardLetter)sender).Letter;
             if (activatedLetter.Equals("OK"))
             {
-                currentName = "NOW WILL STORE NAME AND TRIGGER SOMETHING - this is just for demo";
+                insertHighscoreCommand.Parameters.Add(new SQLiteParameter("param1", currentName));
+                insertHighscoreCommand.Parameters.Add(new SQLiteParameter("param2", scoreToEnter));
+                dbConnection.Open();
+                int insertRes = insertHighscoreCommand.ExecuteNonQuery();
+                dbConnection.Close();
             }
             else if (activatedLetter.Equals("<-"))
             {
@@ -85,6 +102,7 @@ namespace XnaTest.Menu
             {
                 currentName += ((KeyboardLetter)sender).Letter;
             }
+            ((KeyboardLetter)sender).IsHovered = false;
         }
 
         void kinect_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)

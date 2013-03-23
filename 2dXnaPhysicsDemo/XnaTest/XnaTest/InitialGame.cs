@@ -38,6 +38,9 @@ namespace XnaTest
         private GameMode gameMode = GameMode.ONE_PLAYER;
         private const int generatePresentsInterval = 4; //time in seconds
         
+        private const int targetScore = 20; // when game ends
+        private Stopwatch gameStopwatch;
+        
         private const int borderSize = 10;
         private const int explosionStays = 50; // time in miliseconds
         //TODO remove after development
@@ -190,7 +193,8 @@ namespace XnaTest
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
             gestureControllerHandler = new GestureControllerHandler();
-            //gestureControllerHandler.GestureController.GestureRecognized += new EventHandler<GestureEventArgs>(GestureController_GestureRecognized);
+
+            gameStopwatch = new Stopwatch();
             base.EnableCameraControl = false;
         }
 
@@ -520,6 +524,18 @@ namespace XnaTest
                         bodyIdToRemove = fixtureA.Body.BodyId;
                         bodyToRemove = fixtureA.Body;
                         player.addPoints(1);
+                        if (player.getPoints() == targetScore)
+                        {
+                            gameStopwatch.Stop();
+                            if (isHighscore(gameStopwatch.ElapsedMilliseconds))
+                            {
+                                // TODO show screen for entering highscore
+                            }
+                            else
+                            {
+                                // TODO show high scores only (screen currently doesn't exist)
+                            }
+                        }
                     }
                 }
 
@@ -555,6 +571,12 @@ namespace XnaTest
             {
                 return true;
             }
+        }
+
+        private bool isHighscore(long scoreInMiliseconds)
+        {
+
+            return false;
         }
     }
 }
