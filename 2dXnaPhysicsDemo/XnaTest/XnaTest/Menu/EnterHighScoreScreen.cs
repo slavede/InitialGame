@@ -82,18 +82,6 @@ namespace XnaTest.Menu
             keyboard.ActivationChanged += new EventHandler(keyboard_ActivationChanged);
 
             kinectPongDAL = new KinectPongDAL();
-
-            kinectPongDAL.InsertHighScore("Slave1", 150, 10);
-            kinectPongDAL.InsertHighScore("Slave2", 1500, 10);
-            kinectPongDAL.InsertHighScore("Slave3", 15000, 10);
-            kinectPongDAL.InsertHighScore("Slave4", 150000, 10);
-            kinectPongDAL.InsertHighScore("Slave5", 1500000, 10);
-            kinectPongDAL.InsertHighScore("Slave6", 250, 10);
-            kinectPongDAL.InsertHighScore("Slave7", 1500, 10);
-            kinectPongDAL.InsertHighScore("Slave8", 15000, 10);
-            kinectPongDAL.InsertHighScore("Slave9", 1500, 10);
-            kinectPongDAL.InsertHighScore("Slave10", 150, 10);
-            kinectPongDAL.InsertHighScore("Slave11", 222, 10);
         }
 
         void keyboard_ActivationChanged(object sender, EventArgs e)
@@ -151,8 +139,6 @@ namespace XnaTest.Menu
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            // TODO 
-
             if (skeletonData != null)
             {
                 for (int i = 0; i < skeletonData.Length; i++)

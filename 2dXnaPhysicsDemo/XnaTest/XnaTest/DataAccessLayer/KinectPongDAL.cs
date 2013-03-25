@@ -21,7 +21,7 @@ namespace XnaTest.DataAccessLayer
                 dbConnection = new SQLiteConnection("Data Source=../../../../../db/KinectPong.sqlite;Version=3;");
                 insertHighscoreCommand = new SQLiteCommand("INSERT INTO high_scores (name, result) VALUES (?, ?)", dbConnection);
                 selectTopScores = new SQLiteCommand("SELECT * FROM high_scores ORDER BY result DESC", dbConnection);
-                removeInvalidHighscores = new SQLiteCommand("DELETE FROM high_scores WHERE result >= ?", dbConnection);
+                removeInvalidHighscores = new SQLiteCommand("DELETE FROM high_scores WHERE result <= ?", dbConnection);
             }
         }
 
@@ -45,8 +45,8 @@ namespace XnaTest.DataAccessLayer
             if (topResults.Count > maximumTopScores)
             {
                 // read resultOfLast and go to next first that is different (maybe in some cases maximumTopScores and next one will have same result)
-                long resultOfLast = topResults[maximumTopScores];
-                for (int i = maximumTopScores; i < topResults.Count; i++)
+                long resultOfLast = topResults[maximumTopScores-1];
+                for (int i = maximumTopScores - 1; i < topResults.Count; i++)
                 {
                     if (!topResults[i].Equals(resultOfLast))
                     {
