@@ -31,6 +31,8 @@ namespace XnaTest.Menu
         Texture2D jointTexture;
 
         private long scoreToEnter;
+        private Vector2 scorePosition;
+        private String congratulationsMessage;
         private int maximumTopScores;
 
         private KinectPongDAL kinectPongDAL;
@@ -65,7 +67,6 @@ namespace XnaTest.Menu
                 kinect.SkeletonStream.Enable();
                 kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
                 kinect.Start();
-
             }
 
             // Slaven, just for testing
@@ -77,6 +78,11 @@ namespace XnaTest.Menu
 
             currentName = "";
             currentNamePosition = new Vector2(0, keyboardPosition.Y - ScreenManager.GraphicsDevice.Viewport.Height / 8);
+
+            TimeSpan t = TimeSpan.FromMilliseconds(scoreToEnter);
+            string answer = string.Format("{0:D2}:{1:D2}:{2:D3}", t.Minutes, t.Seconds, t.Milliseconds);
+            congratulationsMessage = "Congratulations, you've made to High Scores with score " + answer;
+            scorePosition = new Vector2(-scoreFont.MeasureString(congratulationsMessage).X/2, currentNamePosition.Y - ScreenManager.GraphicsDevice.Viewport.Height / 8);
 
             gestureControllerHandler = new GestureControllerHandler();
             keyboard.ActivationChanged += new EventHandler(keyboard_ActivationChanged);
@@ -90,6 +96,8 @@ namespace XnaTest.Menu
             if (activatedLetter.Equals("OK"))
             {
                 kinectPongDAL.InsertHighScore(currentName, scoreToEnter, maximumTopScores);
+                HighScoreScreen highScoreScreen = new HighScoreScreen();
+                ScreenManager.AddScreen(highScoreScreen);
             }
             else if (activatedLetter.Equals("<-"))
             {
@@ -123,11 +131,11 @@ namespace XnaTest.Menu
 
         public override void Draw(GameTime gameTime)
         {
-            // TODO
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
 
             keyboard.Draw(ScreenManager);
 
+            ScreenManager.SpriteBatch.DrawString(scoreFont, congratulationsMessage, scorePosition, Color.Yellow);
             ScreenManager.SpriteBatch.DrawString(scoreFont, currentName, currentNamePosition, Color.Yellow);
             // Slaven, just for testing
             DrawSkeleton(ScreenManager.SpriteBatch, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), jointTexture);

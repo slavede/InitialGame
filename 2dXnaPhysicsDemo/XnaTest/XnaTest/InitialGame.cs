@@ -537,12 +537,13 @@ namespace XnaTest
                             gameStopwatch.Stop();
                             if (isHighscore(gameStopwatch.ElapsedMilliseconds))
                             {
-                                EnterHighScoreScreen highScoreScreen = new EnterHighScoreScreen(gameStopwatch.ElapsedMilliseconds, maximumTopScorers);
-                                ScreenManager.AddScreen(highScoreScreen);
+                                EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(gameStopwatch.ElapsedMilliseconds, maximumTopScorers);
+                                ScreenManager.AddScreen(enterHighScoreScreen);
                             }
                             else
                             {
-                                // TODO show high scores only (screen currently doesn't exist)
+                                HighScoreScreen highScoreScreen = new HighScoreScreen();
+                                ScreenManager.AddScreen(highScoreScreen);
                             }
                         }
                     }
