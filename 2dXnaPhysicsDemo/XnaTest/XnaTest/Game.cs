@@ -68,7 +68,7 @@ namespace XnaTest
             MainMenuScreen mainMenuScreen = new MainMenuScreen();
             //ScreenManager.AddScreen(mainMenuScreen);
 
-            EnterHighScoreScreen highScoreScreen = new EnterHighScoreScreen(2300000);
+            EnterHighScoreScreen highScoreScreen = new EnterHighScoreScreen(2300000, 10);
             ScreenManager.AddScreen(highScoreScreen);
             
         }

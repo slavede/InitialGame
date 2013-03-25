@@ -40,6 +40,7 @@ namespace XnaTest
         
         private const int targetScore = 20; // when game ends
         private Stopwatch gameStopwatch;
+        private long lowestHighscore;
         
         private const int borderSize = 10;
         private const int explosionStays = 50; // time in miliseconds
@@ -193,6 +194,7 @@ namespace XnaTest
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
             gestureControllerHandler = new GestureControllerHandler();
+
 
             gameStopwatch = new Stopwatch();
             base.EnableCameraControl = false;

@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using XnaTest.Utils;
 using Microsoft.Kinect;
 using System.Data.SQLite;
+using XnaTest.DataAccessLayer;
 
 namespace XnaTest.Menu
 {
@@ -30,9 +31,9 @@ namespace XnaTest.Menu
         Texture2D jointTexture;
 
         private long scoreToEnter;
+        private int maximumTopScores;
 
-        private SQLiteConnection dbConnection;
-        private SQLiteCommand insertHighscoreCommand;
+        private KinectPongDAL kinectPongDAL;
         
         #region IDemoScreen Members
 
@@ -48,9 +49,10 @@ namespace XnaTest.Menu
 
         #endregion
 
-        public EnterHighScoreScreen(long scoreToEnter) : base()
+        public EnterHighScoreScreen(long scoreToEnter, int maximumTopScores) : base()
         {
             this.scoreToEnter = scoreToEnter;
+            this.maximumTopScores = maximumTopScores;
         }
 
         public override void LoadContent()
@@ -79,9 +81,19 @@ namespace XnaTest.Menu
             gestureControllerHandler = new GestureControllerHandler();
             keyboard.ActivationChanged += new EventHandler(keyboard_ActivationChanged);
 
-            dbConnection = new SQLiteConnection("Data Source=../../../../../db/KinectPong.sqlite;Version=3;");
-            insertHighscoreCommand = new SQLiteCommand("INSERT INTO high_scores (name, result) VALUES (?, ?)", dbConnection);
+            kinectPongDAL = new KinectPongDAL();
 
+            kinectPongDAL.InsertHighScore("Slave1", 150, 10);
+            kinectPongDAL.InsertHighScore("Slave2", 1500, 10);
+            kinectPongDAL.InsertHighScore("Slave3", 15000, 10);
+            kinectPongDAL.InsertHighScore("Slave4", 150000, 10);
+            kinectPongDAL.InsertHighScore("Slave5", 1500000, 10);
+            kinectPongDAL.InsertHighScore("Slave6", 250, 10);
+            kinectPongDAL.InsertHighScore("Slave7", 1500, 10);
+            kinectPongDAL.InsertHighScore("Slave8", 15000, 10);
+            kinectPongDAL.InsertHighScore("Slave9", 1500, 10);
+            kinectPongDAL.InsertHighScore("Slave10", 150, 10);
+            kinectPongDAL.InsertHighScore("Slave11", 222, 10);
         }
 
         void keyboard_ActivationChanged(object sender, EventArgs e)
@@ -89,11 +101,7 @@ namespace XnaTest.Menu
             String activatedLetter = ((KeyboardLetter)sender).Letter;
             if (activatedLetter.Equals("OK"))
             {
-                insertHighscoreCommand.Parameters.Add(new SQLiteParameter("param1", currentName));
-                insertHighscoreCommand.Parameters.Add(new SQLiteParameter("param2", scoreToEnter));
-                dbConnection.Open();
-                int insertRes = insertHighscoreCommand.ExecuteNonQuery();
-                dbConnection.Close();
+                kinectPongDAL.InsertHighScore(currentName, scoreToEnter, maximumTopScores);
             }
             else if (activatedLetter.Equals("<-"))
             {
