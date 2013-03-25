@@ -63,14 +63,16 @@ namespace XnaTest
             //ScreenManager.AddScreen(collisionTest);
 
             InitialGame initialGame = new InitialGame();
-            //ScreenManager.AddScreen(initialGame);
+            ScreenManager.AddScreen(initialGame);
 
             MainMenuScreen mainMenuScreen = new MainMenuScreen();
             //ScreenManager.AddScreen(mainMenuScreen);
 
-            EnterHighScoreScreen highScoreScreen = new EnterHighScoreScreen(2300000, 10);
+            // EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(2300000, 10);
+            //ScreenManager.AddScreen(highScoreenterHighScoreScreenScreen);
+
+            HighScoreScreen highScoreScreen = new HighScoreScreen();
             ScreenManager.AddScreen(highScoreScreen);
-            
         }
 
         /// <summary>

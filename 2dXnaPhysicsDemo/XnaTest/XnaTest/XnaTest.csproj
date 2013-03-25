@@ -128,6 +128,7 @@
     <Compile Include="CustomHandGestures\JoinedHandsAnywhere.cs" />
     <Compile Include="DataAccessLayer\KinectPongDAL.cs" />
     <Compile Include="Menu\EnterHighScoreScreen.cs" />
+    <Compile Include="Menu\HighScoreScreen.cs" />
     <Compile Include="Menu\KinectWheelController.cs" />
     <Compile Include="Menu\MouseWheelController.cs" />
     <Compile Include="Menu\Wheel.cs" />

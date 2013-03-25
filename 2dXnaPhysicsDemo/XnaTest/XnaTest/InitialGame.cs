@@ -23,6 +23,7 @@ using Fizbin.Kinect.Gestures.Segments;
 using System.ComponentModel;
 using XnaTest.Menu;
 using XnaTest.ComplexBodies;
+using XnaTest.DataAccessLayer;
 
 
 namespace XnaTest
@@ -38,9 +39,11 @@ namespace XnaTest
         private GameMode gameMode = GameMode.ONE_PLAYER;
         private const int generatePresentsInterval = 4; //time in seconds
         
-        private const int targetScore = 20; // when game ends
+        private const int targetScore = 5; // when game ends
+        private const int maximumTopScorers = 10; // TOP 10
         private Stopwatch gameStopwatch;
         private long lowestHighscore;
+        private KinectPongDAL kinectPongDAL;
         
         private const int borderSize = 10;
         private const int explosionStays = 50; // time in miliseconds
@@ -195,8 +198,11 @@ namespace XnaTest
 
             gestureControllerHandler = new GestureControllerHandler();
 
+            kinectPongDAL = new KinectPongDAL();
+            lowestHighscore = kinectPongDAL.getLowestHighscore(maximumTopScorers);
 
             gameStopwatch = new Stopwatch();
+            gameStopwatch.Start();
             base.EnableCameraControl = false;
         }
 
@@ -531,7 +537,8 @@ namespace XnaTest
                             gameStopwatch.Stop();
                             if (isHighscore(gameStopwatch.ElapsedMilliseconds))
                             {
-                                // TODO show screen for entering highscore
+                                EnterHighScoreScreen highScoreScreen = new EnterHighScoreScreen(gameStopwatch.ElapsedMilliseconds, maximumTopScorers);
+                                ScreenManager.AddScreen(highScoreScreen);
                             }
                             else
                             {
@@ -577,6 +584,10 @@ namespace XnaTest
 
         private bool isHighscore(long scoreInMiliseconds)
         {
+            if (lowestHighscore == -1 || scoreInMiliseconds <= lowestHighscore)
+            {
+                return true;
+            }
 
             return false;
         }
