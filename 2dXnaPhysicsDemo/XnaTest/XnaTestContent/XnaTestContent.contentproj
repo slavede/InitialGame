@@ -186,6 +186,62 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="letter.png">
+      <Name>letter</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="circle_fill.png">
+      <Name>circle_fill</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CharacterSprites\Avatar.png">
+      <Name>Avatar</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CharacterSprites\Avatar.json">
+      <Name>AvatarJSON</Name>
+      <Importer>TextureAtlasImporter</Importer>
+      <Processor>TextureAtlasProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CharacterSprites\VodafoneMascot.png">
+      <Name>VodafoneMascot</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CharacterSprites\VodafoneMascot.xml">
+      <Name>VodafoneMascotXML</Name>
+      <Importer>TextureAtlasImporter</Importer>
+      <Processor>TextureAtlasProcessor</Processor>
+      <SubType>Designer</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TexturePipeline\TexturePipeline.csproj">
+      <Project>{61D27F02-E260-4DA3-AB44-85B70D5BDD40}</Project>
+      <Name>TexturePipeline</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HighScoreHeading.spritefont">
+      <Name>HighScoreHeading</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

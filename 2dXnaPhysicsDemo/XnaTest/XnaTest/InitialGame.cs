@@ -18,6 +18,13 @@ using XnaTest.Character.Characters;
 using FarseerPhysics.Common.Decomposition;
 using FarseerPhysics.Common.PolygonManipulation;
 using XnaTest.Utils;
+using Fizbin.Kinect.Gestures;
+using Fizbin.Kinect.Gestures.Segments;
+using System.ComponentModel;
+using XnaTest.Menu;
+using XnaTest.ComplexBodies;
+using XnaTest.DataAccessLayer;
+
 
 namespace XnaTest
 {
@@ -31,6 +38,12 @@ namespace XnaTest
     {
         private GameMode gameMode = GameMode.ONE_PLAYER;
         private const int generatePresentsInterval = 4; //time in seconds
+        
+        private const int targetScore = 5; // when game ends
+        private const int maximumTopScorers = 10; // TOP 10
+        private Stopwatch gameStopwatch;
+        private long lowestHighscore;
+        private KinectPongDAL kinectPongDAL;
         
         private const int borderSize = 10;
         private const int explosionStays = 50; // time in miliseconds
@@ -82,6 +95,8 @@ namespace XnaTest
         private int xScorePosition;
         private int yScorePosition;
 
+        private GestureControllerHandler gestureControllerHandler;
+
         #region IDemoScreen Members
 
         public string GetTitle()
@@ -122,7 +137,7 @@ namespace XnaTest
         {
             base.LoadContent();
 
-            Player initialPlayer = new Player(new Majlo(ScreenManager.Content));       
+            Player initialPlayer = new Player(new VodafoneMascot(ScreenManager.Content));       
 
             players = new Dictionary<int, Player>();
 
@@ -170,13 +185,24 @@ namespace XnaTest
             }
 
             initEdges();
-            circleTexture = CreateCircle(5);
+            int radius = 5;
+            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
+            Texture2D texture = new Texture2D(ScreenManager.GraphicsDevice, outerRadius, outerRadius);
+
+            circleTexture = TextureParser.CreateCircle(radius, outerRadius, texture);
             random = new Random();
 
             World.Gravity = new Vector2(0, ScreenManager.GraphicsDevice.Viewport.Height / 15);
 
             jointTexture = ScreenManager.Content.Load<Texture2D>("joint");
 
+            gestureControllerHandler = new GestureControllerHandler();
+
+            kinectPongDAL = new KinectPongDAL();
+            lowestHighscore = kinectPongDAL.getLowestHighscore(maximumTopScorers);
+
+            gameStopwatch = new Stopwatch();
+            gameStopwatch.Start();
             base.EnableCameraControl = false;
         }
 
@@ -366,6 +392,12 @@ namespace XnaTest
                     Skeleton skel = skeletonData[i];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
+                        // update the gesture controller
+                        gestureControllerHandler.UpdateAllGestures(skel);
+                        if (gestureControllerHandler.Gesture != null && gestureControllerHandler.Gesture.Equals("Joined Hands Anywhere"))
+                        {
+                            ScreenManager.AddScreen(new MainMenuScreen());
+                        }
                         if (!players.ContainsKey(i))
                         {
                             Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
@@ -390,7 +422,7 @@ namespace XnaTest
                             }
                             players.Add(i, newPlayer);
                         }
-                        skeleton = skel;
+
                         players[i].inputPosition.HandleInput(
                             gameTime,
                             skel.Joints[Microsoft.Kinect.JointType.HandLeft], skel.Joints[Microsoft.Kinect.JointType.HandRight],
@@ -500,6 +532,20 @@ namespace XnaTest
                         bodyIdToRemove = fixtureA.Body.BodyId;
                         bodyToRemove = fixtureA.Body;
                         player.addPoints(1);
+                        if (player.getPoints() == targetScore)
+                        {
+                            gameStopwatch.Stop();
+                            if (isHighscore(gameStopwatch.ElapsedMilliseconds))
+                            {
+                                EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(gameStopwatch.ElapsedMilliseconds, maximumTopScorers);
+                                ScreenManager.AddScreen(enterHighScoreScreen);
+                            }
+                            else
+                            {
+                                HighScoreScreen highScoreScreen = new HighScoreScreen();
+                                ScreenManager.AddScreen(highScoreScreen);
+                            }
+                        }
                     }
                 }
 
@@ -537,32 +583,14 @@ namespace XnaTest
             }
         }
 
-        public Texture2D CreateCircle(int radius)
+        private bool isHighscore(long scoreInMiliseconds)
         {
-            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
-            Texture2D texture = new Texture2D(ScreenManager.GraphicsDevice, outerRadius, outerRadius);
-
-            Color[] data = new Color[outerRadius * outerRadius];
-
-            // Colour the entire texture transparent first.
-            for (int i = 0; i < data.Length; i++)
-                data[i] = Color.Transparent;
-
-            // Work out the minimum step necessary using trigonometry + sine approximation.
-            double angleStep = 1f / radius;
-
-            for (double angle = 0; angle < Math.PI * 2; angle += angleStep)
+            if (lowestHighscore == -1 || scoreInMiliseconds <= lowestHighscore)
             {
-                // Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
-                int x = (int)Math.Round(radius + radius * Math.Cos(angle));
-                int y = (int)Math.Round(radius + radius * Math.Sin(angle));
-
-                data[y * outerRadius + x + 1] = Color.White;
+                return true;
             }
 
-            texture.SetData(data);
-            return texture;
+            return false;
         }
-
     }
 }
