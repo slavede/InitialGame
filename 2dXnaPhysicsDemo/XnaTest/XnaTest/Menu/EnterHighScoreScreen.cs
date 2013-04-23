@@ -30,10 +30,10 @@ namespace XnaTest.Menu
         Skeleton skeletonToDraw;
         Texture2D jointTexture;
 
-        private long scoreToEnter;
+        private long scoreToEnter { get; set; }
         private Vector2 scorePosition;
         private String congratulationsMessage;
-        private int maximumTopScores;
+        private int maximumTopScores { get; set; }
 
         private KinectPongDAL kinectPongDAL;
         
@@ -56,6 +56,9 @@ namespace XnaTest.Menu
             this.scoreToEnter = scoreToEnter;
             this.maximumTopScores = maximumTopScores;
         }
+
+        public EnterHighScoreScreen() : base()
+        { }
 
         public override void LoadContent()
         {
@@ -147,6 +150,7 @@ namespace XnaTest.Menu
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             // TODO 
 
             if (skeletonData != null)
@@ -171,7 +175,7 @@ namespace XnaTest.Menu
 
             keyboard.Update();
             
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        
         }
 
         private void DrawSkeleton(SpriteBatch spriteBatch, Vector2 resolution, Texture2D img)

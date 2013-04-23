@@ -62,14 +62,21 @@ namespace XnaTest
             //CollisionTest collisionTest = new CollisionTest();
             //ScreenManager.AddScreen(collisionTest);
 
-            InitialGame initialGame = new InitialGame();
-            ScreenManager.AddScreen(initialGame);
+            ScreenManager.AddScreen( new MainMenuScreen());
+            ScreenManager.AddScreen(new InitialGame());
 
-           // MainMenuScreen mainMenuScreen = new MainMenuScreen();
+            //ScreenManager.AddScreen(highScoreMenuScreen);
+            //ScreenManager.AddScreen(enterHighScoreMenuScreen);
+
+            //ScreenManager.RemoveScreen(mainMenuScreen);
+            //ScreenManager.RemoveScreen(highScoreMenuScreen);
+            //ScreenManager.RemoveScreen(enterHighScoreMenuScreen);
+
+            //MainMenuScreen mainMenuScreen = new MainMenuScreen();
             //ScreenManager.AddScreen(mainMenuScreen);
 
-             EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(12352, 10);
-             ScreenManager.AddScreen(enterHighScoreScreen);
+             //EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(12352, 10);
+             //ScreenManager.AddScreen(enterHighScoreScreen);
 
             //HighScoreScreen highScoreScreen = new HighScoreScreen();
             //ScreenManager.AddScreen(highScoreScreen);
@@ -81,6 +88,8 @@ namespace XnaTest
         /// </summary>
         protected override void LoadContent()
         {
+
+
             // Create a new SpriteBatch, which can be used to draw textures.
             
             // TODO: use this.Content to load your game content here

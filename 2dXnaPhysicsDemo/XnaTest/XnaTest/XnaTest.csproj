@@ -64,6 +64,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Microsoft.Kinect.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Kinect.Toolkit.Controls">
+      <HintPath>..\..\lib\Microsoft.Kinect.Toolkit.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kinect.Toolkit.Interaction">
+      <HintPath>..\..\lib\Microsoft.Kinect.Toolkit.Interaction.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
@@ -130,10 +137,13 @@
     <Compile Include="ComplexBodies\KeyboardLetter.cs" />
     <Compile Include="CustomHandGestures\JoinedHandsAnywhere.cs" />
     <Compile Include="DataAccessLayer\KinectPongDAL.cs" />
+    <Compile Include="Menu\PauseMenuScreen.cs" />
     <Compile Include="Menu\EnterHighScoreScreen.cs" />
     <Compile Include="Menu\HighScoreScreen.cs" />
-    <Compile Include="Menu\KinectWheelController.cs" />
+    <Compile Include="Menu\KinectGrabWheelController.cs" />
+    <Compile Include="Menu\KinectInsideWheelController.cs" />
     <Compile Include="Menu\MouseWheelController.cs" />
+    <Compile Include="Menu\Test.cs" />
     <Compile Include="Menu\Wheel.cs" />
     <Compile Include="Menu\WheelController.cs" />
     <Compile Include="Menu\WheelDelegate.cs" />

@@ -17,6 +17,13 @@ namespace XnaTest.Menu
 
         void doGrabCheck(); //just warning to implement this behaviour
 
+        Boolean isGrabPerformed();
+
         Vector2 getPosition();
+
+
+
+        //TODO obrisat, samo za development
+        void Draw();
     }
 }
