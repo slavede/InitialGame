@@ -27,7 +27,7 @@ namespace XnaTest.Character.Characters
             currentFrame = 0;
         }
 
-        public virtual void Update(float angle)
+        public virtual void Update(float angle, float positionX)
         {
             currentFrame = getFrameIndex(angle);
         }

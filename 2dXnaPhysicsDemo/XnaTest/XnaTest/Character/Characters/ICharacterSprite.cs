@@ -16,8 +16,9 @@ namespace XnaTest.Character.Characters
     /// </summary>
     interface ICharacterSprite
     {
-        void Update(float angle);
+        void Update(float angle, float positionX);
 
         void Draw(SpriteBatch spriteBatch, Vector2 location);
+
     }
 }

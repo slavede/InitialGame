@@ -74,7 +74,7 @@ namespace XnaTest.Character
         {
             updatePlankPositionVectors();
             updateBodyFixedJoints();
-            characterSprite.Update(plankBody.Rotation);
+            characterSprite.Update(plankBody.Rotation, plankBody.Position.X);
         }
 
         public void addPoints(int points)
