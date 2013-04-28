@@ -135,6 +135,7 @@ namespace XnaTest
 
         public override void LoadContent()
         {
+            
             base.LoadContent();
 
             Player initialPlayer = new Player(new VodafoneMascot(ScreenManager.Content));       
@@ -383,7 +384,18 @@ namespace XnaTest
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            
+            if (otherScreenHasFocus)
+            {
+                return;
+            }
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+
             populatePresent();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.P)){
+                ScreenManager.AddScreen(new PauseMenuScreen());
+            }
 
             if (skeletonData != null)
             {
@@ -396,7 +408,9 @@ namespace XnaTest
                         gestureControllerHandler.UpdateAllGestures(skel);
                         if (gestureControllerHandler.Gesture != null && gestureControllerHandler.Gesture.Equals("Joined Hands Anywhere"))
                         {
-                            ScreenManager.AddScreen(new MainMenuScreen());
+                            ScreenManager.AddScreen(new MainMenuScreen());//TODO vidjet dal je bolje samo zalijepit mainMenu gore ili ne
+                            
+                            //gestureControllerHandler.Gesture = null;
                         }
                         if (!players.ContainsKey(i))
                         {
@@ -457,9 +471,6 @@ namespace XnaTest
                             gameTime, emptyJoint, emptyJoint, emptyJoint, emptyJoint, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width - players[0].getPlankLength(), ScreenManager.GraphicsDevice.Viewport.Height));
                 players[0].update();
             }
-
-
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         private void populatePresent()
@@ -537,13 +548,19 @@ namespace XnaTest
                             gameStopwatch.Stop();
                             if (isHighscore(gameStopwatch.ElapsedMilliseconds))
                             {
+                                ExitScreen();
+                                HighScoreScreen highScoreScreen = new HighScoreScreen();
+                                ScreenManager.AddScreen(highScoreScreen);
                                 EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(gameStopwatch.ElapsedMilliseconds, maximumTopScorers);
                                 ScreenManager.AddScreen(enterHighScoreScreen);
+                                
                             }
                             else
                             {
+                                ExitScreen();
                                 HighScoreScreen highScoreScreen = new HighScoreScreen();
                                 ScreenManager.AddScreen(highScoreScreen);
+                                
                             }
                         }
                     }

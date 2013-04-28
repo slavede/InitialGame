@@ -74,12 +74,16 @@ namespace XnaTest.Menu
         {
             base.LoadContent();
             World.Gravity = Vector2.Zero;
-            wheel = new Wheel(ScreenManager, World, 150, new Vector2(), new int[]{1,2,3});
+            wheel = new Wheel(ScreenManager, World, 150, new Vector2(), new String[] { "prvi", "drugi", "treci", "cetvrti" });
             
             cursorSprite = new Sprite(ScreenManager.Content.Load<Texture2D>("Common/cursor"));
+            if (wheelController != null)
+            {
+                return;
+            }
             if (KinectSensor.KinectSensors.Count > 0)
             {
-                wheelController = new KinectWheelController(wheel, ScreenManager.GraphicsDevice, KinectSensor.KinectSensors[0], activeSkeletonIndex, 150, Vector2.Zero);
+               wheelController = new KinectGrabWheelController(wheel, ScreenManager, KinectSensor.KinectSensors[0]);
             }
             else
             {
@@ -90,10 +94,19 @@ namespace XnaTest.Menu
         public override void Draw(GameTime gameTime)
         {
             ScreenManager.SpriteBatch.Begin(0, null, null, null, null, null, Camera.View);
+
+            wheelController.Draw();
             wheel.Draw();
 
-            ScreenManager.SpriteBatch.Draw(cursorSprite.Texture, ConvertUnits. ToDisplayUnits(wheelController.getPosition()), null, Color.White, 0f, cursorSprite.Origin, 1f, SpriteEffects.None, 0f);
-
+            if (wheelController.isGrabPerformed())
+            {
+                ScreenManager.SpriteBatch.Draw(cursorSprite.Texture, ConvertUnits.ToDisplayUnits(wheelController.getPosition()), null, Color.Red, 0f, cursorSprite.Origin, 1f, SpriteEffects.None, 0f);
+            }
+            else
+            {
+                ScreenManager.SpriteBatch.Draw(cursorSprite.Texture, ConvertUnits.ToDisplayUnits(wheelController.getPosition()), null, Color.White, 0f, cursorSprite.Origin, 1f, SpriteEffects.None, 0f);
+            }
+            
             ScreenManager.SpriteBatch.End();
             
             base.Draw(gameTime);
@@ -101,6 +114,14 @@ namespace XnaTest.Menu
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            if (otherScreenHasFocus)
+            {
+                return;
+            }
+
+            if(Keyboard.GetState().IsKeyDown(Keys.N)){
+                ScreenManager.AddScreen(new InitialGame());
+            }
             wheelController.HandleInput(gameTime);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }   

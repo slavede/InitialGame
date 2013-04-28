@@ -40,7 +40,7 @@ namespace XnaTest.Menu
         public override void LoadContent()
         {
             base.LoadContent();
-
+            
             headingFont = ScreenManager.Content.Load<SpriteFont>("HighScoreHeading");
             scoresFont = ScreenManager.Content.Load<SpriteFont>("Font");
             highScoreHeadingPosition = new Vector2(-headingFont.MeasureString(highScoreTitle).X/2, -ScreenManager.GraphicsDevice.Viewport.Height / 2);

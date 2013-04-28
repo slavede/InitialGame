@@ -27,6 +27,11 @@ namespace XnaTest.Menu
             camera = new Camera2D(device);
         }
 
+        public Boolean isGrabPerformed()
+        {
+            return mouseState.LeftButton == ButtonState.Pressed;
+        }
+
         public void HandleInput(GameTime gameTime)
         {
             mouseState = Mouse.GetState();
@@ -56,5 +61,7 @@ namespace XnaTest.Menu
         {
             return position;
         }
+
+        public void Draw() { }
     }
 }

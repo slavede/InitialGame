@@ -243,6 +243,32 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="wheelBackground.png">
+      <Name>wheelBackground</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="wheel.png">
+      <Name>wheel</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="notebook.png">
+      <Name>notebook</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="phone.png">
+      <Name>phone</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CharacterSprites\VodafoneDown.png">
       <Name>VodafoneDown</Name>
       <Importer>TextureImporter</Importer>

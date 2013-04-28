@@ -80,8 +80,8 @@ namespace XnaTest.Utils
         public String Gesture
         {
             get { return _gesture; }
-
-            private set
+          
+            set
             {
                 if (_gesture == value)
                     return;

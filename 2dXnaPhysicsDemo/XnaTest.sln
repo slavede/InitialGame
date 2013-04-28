@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XnaTest", "XnaTest\XnaTest\XnaTest.csproj", "{D650AAB3-7AD2-43CD-A63A-B599EB640C2C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XnaTestContent", "XnaTest\XnaTestContent\XnaTestContent.contentproj", "{F246E4B0-A325-4778-A21E-E2C8041846F6}"
