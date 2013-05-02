@@ -18,7 +18,7 @@ namespace XnaTest.ComplexBodies
         public Vector2 Position { get; set; }
         public String Letter { get; set; }
         private Sprite LetterSprite { get; set; }
-        private Body LetterBody { get; set; }
+        private Body LetterBody { get; set; } //TODO zasto body?
 
         public float Radius { get; set; }
 

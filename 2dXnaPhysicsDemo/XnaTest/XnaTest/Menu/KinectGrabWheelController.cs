@@ -141,7 +141,7 @@ namespace XnaTest.Menu
                     wheelDelegate.clearLock();
                 }
             }
-            wheelDelegate.updateTracker(positionScreen);
+            wheelDelegate.updateTracker(gameTime, positionScreen);
 
         }
 
@@ -152,10 +152,6 @@ namespace XnaTest.Menu
         public Vector2 getPosition()
         {
             return positionScreen;
-        }
-
-        public void Draw()
-        {
         }
 
     }

@@ -11,7 +11,7 @@ namespace XnaTest.Menu
 {
     internal class HighScoreScreen : PhysicsGameScreen, IDemoScreen
     {
-
+        //TODO dodat background
         private SpriteFont headingFont;
         private SpriteFont scoresFont;
 
