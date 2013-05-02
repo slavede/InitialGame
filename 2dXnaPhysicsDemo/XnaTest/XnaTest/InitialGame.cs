@@ -159,7 +159,7 @@ namespace XnaTest
                 players.Add(0, initialPlayer);
             }
 
-            background = ScreenManager.Content.Load<Texture2D>("background");
+            background = ScreenManager.Content.Load<Texture2D>("space-earth-stratosphere");
             explosionTexture = ScreenManager.Content.Load<Texture2D>("star");
 
             xScorePosition = -ScreenManager.GraphicsDevice.Viewport.Width / 2 + 20;
@@ -394,7 +394,7 @@ namespace XnaTest
             populatePresent();
 
             if (Keyboard.GetState().IsKeyDown(Keys.P)){
-                ScreenManager.AddScreen(new PauseMenuScreen());
+                ScreenManager.AddScreen(new PauseMenuScreen(this));
             }
 
             if (skeletonData != null)

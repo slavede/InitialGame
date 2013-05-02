@@ -14,7 +14,7 @@ namespace XnaTest.Menu
 
         //public void rotateToEntry(int entryIndex); //will be used for swiping delegate if that's the way :/
 
-        void updateTracker(Vector2 position);
+        void updateTracker(GameTime gameTime, Vector2 position);
 
     }
 }

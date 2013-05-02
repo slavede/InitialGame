@@ -243,20 +243,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="wheelBackground.png">
-      <Name>wheelBackground</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="wheel.png">
-      <Name>wheel</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="notebook.png">
       <Name>notebook</Name>
       <Importer>TextureImporter</Importer>
@@ -264,6 +250,39 @@
     </Compile>
     <Compile Include="phone.png">
       <Name>phone</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\AnimationStrip.png">
+      <Name>AnimationStrip</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="space-earth-stratosphere.jpg">
+      <Name>space-earth-stratosphere</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="wheel-5.png">
+      <Name>wheel-5</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="wheelBackgroundMain.png">
+      <Name>wheelBackgroundMain</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="wheelBackgroundPause.png">
+      <Name>wheelBackgroundPause</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

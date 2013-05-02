@@ -75,7 +75,7 @@ namespace XnaTest.Menu
             position.Y = -skeleton.Joints[Microsoft.Kinect.JointType.HandRight].Position.Y * device.Viewport.Height;
 
             doGrabCheck();
-            wheelDelegate.updateTracker(position);
+            wheelDelegate.updateTracker(gameTime, position);
 
         }
 

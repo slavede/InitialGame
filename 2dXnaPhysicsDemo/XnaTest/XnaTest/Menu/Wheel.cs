@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using FarseerPhysics.Factories;
 using FarseerPhysics.Dynamics.Joints;
 using FarseerPhysics.SamplesFramework;
+using KinectButton;
 
 namespace XnaTest.Menu
 {
@@ -25,13 +26,15 @@ namespace XnaTest.Menu
         int selectedEntryIndex = 0;
         Vector2 selectedEntryPosition = new Vector2();
         private Sprite phone;
-        private Sprite notebook;
+
         private Sprite background;
         public Texture2D jointTexture { get; set; }
-        public SpriteFont font { get; set; }
 
-        public Wheel(ScreenManager screenManager, World world, float radius, Vector2 centerPosition, String[] entryStrings)
+        MenuDelegate menuDelegate;
+
+        public Wheel(ScreenManager screenManager, MenuDelegate menuDelegate, World world, float radius, Vector2 centerPosition, String[] entryStrings, Sprite background)
         {
+            this.menuDelegate = menuDelegate;
             this.radius = radius;
             this.entries = new Dictionary<int,String>(entryStrings.Length);
             for(int i=0;i<entryStrings.Length;i++){
@@ -44,14 +47,13 @@ namespace XnaTest.Menu
             wheelBody.Restitution = .7f;
             wheelBody.Friction = .2f;
 
-            font = screenManager.Content.Load<SpriteFont>("Font");
             FixedRevoluteJoint rollingJoint = JointFactory.CreateFixedRevoluteJoint(world, wheelBody, Vector2.Zero, Vector2.Zero);
-            wheelSprite = new Sprite(screenManager.Content.Load<Texture2D>("wheel"));
+            wheelSprite = new Sprite(screenManager.Content.Load<Texture2D>("wheel-5"));
             
             jointTexture = screenManager.Content.Load<Texture2D>("joint");
-            background = new Sprite(screenManager.Content.Load<Texture2D>("wheelBackground"));
+            this.background = background;
             phone = new Sprite(screenManager.Content.Load<Texture2D>("phone"));
-            notebook = new Sprite(screenManager.Content.Load<Texture2D>("notebook"));
+
         }
 
         public int GetSelectedEntryIndex()
@@ -76,23 +78,17 @@ namespace XnaTest.Menu
                                           SpriteEffects.None, 0f);
             screenManager.SpriteBatch.Draw(wheelSprite.Texture, ConvertUnits.ToDisplayUnits(wheelBody.Position),
                                            null,
-                                           Color.White * 0.5f, wheelBody.Rotation, wheelSprite.Origin, 2.0f * radius / wheelSprite.Texture.Bounds.Height,
+                                           Color.White * 0.8f, wheelBody.Rotation, wheelSprite.Origin, 2.0f * radius / wheelSprite.Texture.Bounds.Height,
                                            SpriteEffects.None, 0f);
-            screenManager.SpriteBatch.Draw(notebook.Texture, ConvertUnits.ToDisplayUnits(new Vector2(300,100)),
-                                          null,
-                                          Color.White, 0f, notebook.Origin, 1.4f * radius / notebook.Texture.Bounds.Height,
-                                          SpriteEffects.None, 0f);
-           
-            screenManager.SpriteBatch.DrawString(font, entries[selectedEntryIndex], ConvertUnits.ToDisplayUnits(new Vector2(250, 47)), Color.Black);
-            
         }
 
-        public void updateTracker(Vector2 position)
+        public void updateTracker(GameTime gameTime, Vector2 position)
         {
             if (fixedMouseJoint != null)
             {
                 fixedMouseJoint.WorldAnchorB = position;
             }
+            menuDelegate.setSelectedMenuIndex(selectedEntryIndex);
         }
 
         public void setLock(Vector2 position)
