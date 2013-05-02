@@ -87,10 +87,13 @@ namespace XnaTest.ComplexBodies
                 Color.White, LetterBody.Rotation, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), 1f,
                 SpriteEffects.None, 0f);
 
-            screenManager.SpriteBatch.Draw(circleFillTexture, ConvertUnits.ToDisplayUnits(positionToDraw),
-                null,
-                Color.White, LetterBody.Rotation, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), PercentageHovered,
-                SpriteEffects.None, 0f);
+            if (isHovered)
+            {
+                screenManager.SpriteBatch.Draw(circleFillTexture, ConvertUnits.ToDisplayUnits(positionToDraw),
+                    null,
+                    Color.White, LetterBody.Rotation, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), PercentageHovered,
+                    SpriteEffects.None, 0f);
+            }
 
 
             screenManager.SpriteBatch.DrawString(letterFont, Letter, new Vector2(positionToDraw.X - letterFont.MeasureString(Letter).X/2, positionToDraw.Y - letterFont.MeasureString(Letter).Y/2), color);

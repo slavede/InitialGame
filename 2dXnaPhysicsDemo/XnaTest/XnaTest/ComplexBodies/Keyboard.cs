@@ -131,28 +131,18 @@ namespace XnaTest.ComplexBodies
             }
         }
 
-        public Boolean CheckHoveredLetters(Joint leftHandJoint, Joint rightHandJoint, ScreenManager screenManager)
+        public void CheckHoveredLetters(Vector2 positionOfHand)
         {
-            Vector2 resolution = new Vector2(screenManager.GraphicsDevice.Viewport.Width, screenManager.GraphicsDevice.Viewport.Height);
-
-            //Vector2 rightHandPosition = new Vector2(rightHandJoint.Position.X, rightHandJoint.Position.Y);
-            Vector2 rightHandPosition = new Vector2((((0.5f * rightHandJoint.Position.X) + 0.5f) * (resolution.X)) - screenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * rightHandJoint.Position.Y) + 0.5f) * (resolution.Y)) - screenManager.GraphicsDevice.Viewport.Height / 2);
-            Vector2 leftHandPosition = new Vector2((((0.5f * leftHandJoint.Position.X) + 0.5f) * (resolution.X)) - screenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * leftHandJoint.Position.Y) + 0.5f) * (resolution.Y)) - screenManager.GraphicsDevice.Viewport.Height / 2);
             foreach (KeyboardLetter keyboardLetter in letters)
             {
-                if (MathHelperMethods.DistanceBetweenTwoVector2(keyboardLetter.Position, rightHandPosition) < keyboardLetter.Radius ||
-                    MathHelperMethods.DistanceBetweenTwoVector2(keyboardLetter.Position, leftHandPosition) < keyboardLetter.Radius)
-                {
+                if (MathHelperMethods.DistanceBetweenTwoVector2(keyboardLetter.Position, positionOfHand) < keyboardLetter.Radius) {
                     keyboardLetter.IsHovered = true;
-                    return true;
                 }
                 else
                 {
                     keyboardLetter.IsHovered = false;
                 }
             }
-            return false;
         }
-
     }
 }

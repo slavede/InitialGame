@@ -13,7 +13,7 @@ namespace XnaTest.Utils
             float xDistance = vector2.X - vector1.X;
             float yDistance = vector2.Y - vector1.Y;
 
-            return Math.Sqrt(xDistance*xDistance - yDistance*yDistance);
+            return Math.Sqrt(xDistance*xDistance + yDistance*yDistance);
         }
     }
 }
