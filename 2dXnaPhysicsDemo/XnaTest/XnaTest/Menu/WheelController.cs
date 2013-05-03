@@ -21,9 +21,5 @@ namespace XnaTest.Menu
 
         Vector2 getPosition();
 
-
-
-        //TODO obrisat, samo za development
-        void Draw();
     }
 }

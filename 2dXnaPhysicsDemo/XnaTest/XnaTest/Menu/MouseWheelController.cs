@@ -41,7 +41,7 @@ namespace XnaTest.Menu
             position = camera.ConvertScreenToWorld(position);
             doGrabCheck();
 
-            wheelDelegate.updateTracker(position);
+            wheelDelegate.updateTracker(gameTime, position);
         }
 
         public void doGrabCheck()

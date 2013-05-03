@@ -18,7 +18,6 @@ namespace XnaTest.ComplexBodies
         public Vector2 Position { get; set; }
         public String Letter { get; set; }
         private Sprite LetterSprite { get; set; }
-        private Body LetterBody { get; set; }
 
         public float Radius { get; set; }
 
@@ -65,11 +64,11 @@ namespace XnaTest.ComplexBodies
             this.Texture = texture;
             this.Letter = letter;
 
-            this.LetterBody = BodyFactory.CreateCircle(world, Texture.Width/2, 1);
             this.circleFillTexture = fillTexture;
             this.PercentageHovered = 0.0f;
             this.Radius = texture.Width/2;
-            this.LetterSprite = new Sprite(screenManager.Assets.TextureFromShape(LetterBody.FixtureList[0].Shape, MaterialType.Squares, Color.Orange, 1f));
+
+            this.LetterSprite = new Sprite(texture);
 
             this.letterFont = letterFont;
             this.color = color;
@@ -82,15 +81,19 @@ namespace XnaTest.ComplexBodies
         public void Draw(ScreenManager screenManager)
         {
             Vector2 positionToDraw = new Vector2(Position.X + randomGenerator.Next(-1, 1), Position.Y + randomGenerator.Next(-1, 1));
+
             screenManager.SpriteBatch.Draw(Texture, ConvertUnits.ToDisplayUnits(positionToDraw),
                 null,
-                Color.White, LetterBody.Rotation, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), 1f,
+                Color.White, 0, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), 1f,
                 SpriteEffects.None, 0f);
 
-            screenManager.SpriteBatch.Draw(circleFillTexture, ConvertUnits.ToDisplayUnits(positionToDraw),
-                null,
-                Color.White, LetterBody.Rotation, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), PercentageHovered,
-                SpriteEffects.None, 0f);
+            if (isHovered)
+            {
+                screenManager.SpriteBatch.Draw(circleFillTexture, ConvertUnits.ToDisplayUnits(positionToDraw),
+                    null,
+                    Color.White, 0, ConvertUnits.ToDisplayUnits(LetterSprite.Origin), PercentageHovered,
+                    SpriteEffects.None, 0f);
+            }
 
 
             screenManager.SpriteBatch.DrawString(letterFont, Letter, new Vector2(positionToDraw.X - letterFont.MeasureString(Letter).X/2, positionToDraw.Y - letterFont.MeasureString(Letter).Y/2), color);

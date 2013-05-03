@@ -10,6 +10,7 @@ using XnaTest.Utils;
 using Microsoft.Kinect;
 using System.Data.SQLite;
 using XnaTest.DataAccessLayer;
+using Microsoft.Xna.Framework.Input;
 
 namespace XnaTest.Menu
 {
@@ -36,7 +37,12 @@ namespace XnaTest.Menu
         private int maximumTopScores { get; set; }
 
         private KinectPongDAL kinectPongDAL;
-        
+
+        private MouseState mouseState;
+        private Sprite cursorSprite;
+        private Camera2D camera;
+        private Boolean usingMouse = false;
+
         #region IDemoScreen Members
 
         public string GetTitle()
@@ -70,6 +76,12 @@ namespace XnaTest.Menu
                 kinect.SkeletonStream.Enable();
                 kinect.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady);
                 kinect.Start();
+            }
+            else
+            {
+                cursorSprite = new Sprite(ScreenManager.Content.Load<Texture2D>("Common/cursor"));
+                camera = new Camera2D(ScreenManager.GraphicsDevice);
+                usingMouse = true;
             }
 
             // Slaven, just for testing
@@ -143,6 +155,10 @@ namespace XnaTest.Menu
             // Slaven, just for testing
             DrawSkeleton(ScreenManager.SpriteBatch, new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, ScreenManager.GraphicsDevice.Viewport.Height), jointTexture);
 
+            if (usingMouse)
+            {
+                ScreenManager.SpriteBatch.Draw(cursorSprite.Texture, new Vector2(camera.ConvertScreenToWorld(new Vector2(mouseState.X, mouseState.Y)).X, camera.ConvertScreenToWorld(new Vector2(mouseState.X, mouseState.Y)).Y), null, Color.Red, 0f, cursorSprite.Origin, 1f, SpriteEffects.None, 0f);
+            }
 
             ScreenManager.SpriteBatch.End();
             base.Draw(gameTime);
@@ -162,13 +178,20 @@ namespace XnaTest.Menu
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         skeletonToDraw = skel;
-                        keyboard.CheckHoveredLetters(skel.Joints[JointType.HandLeft], skel.Joints[JointType.HandRight], ScreenManager);
+
+                        Vector2 rightHandPosition = new Vector2((((0.5f * skel.Joints[JointType.HandRight].Position.X) + 0.5f) * (ScreenManager.GraphicsDevice.Viewport.Width)) - ScreenManager.GraphicsDevice.Viewport.Width / 2, (((-0.5f * skel.Joints[JointType.HandRight].Position.Y) + 0.5f) * (ScreenManager.GraphicsDevice.Viewport.Height)) - ScreenManager.GraphicsDevice.Viewport.Height / 2);
+                        keyboard.CheckHoveredLetters(rightHandPosition);
                     }
                 }
             }
             else
             {
                 skeletonToDraw = null;
+                if (usingMouse)
+                {
+                    mouseState = Mouse.GetState();
+                    keyboard.CheckHoveredLetters(camera.ConvertScreenToWorld(new Vector2(mouseState.X, mouseState.Y)));
+                }
             }
 
             currentNamePosition.X = -scoreFont.MeasureString(currentName).X / 2;
