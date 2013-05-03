@@ -377,9 +377,9 @@ namespace XnaTest
             player.Draw(ScreenManager.SpriteBatch);
 
             //only for development
-            ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
-            ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
+            //ScreenManager.SpriteBatch.Draw(circleTexture, player.leftPlankPosition.convertToVector2(), Color.Black);
+            //ScreenManager.SpriteBatch.Draw(circleTexture, player.centralPlankPosition.convertToVector2(), Color.Black);
+            //ScreenManager.SpriteBatch.Draw(circleTexture, player.rightPlankPosition.convertToVector2(), Color.Black);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
@@ -414,7 +414,7 @@ namespace XnaTest
                         }
                         if (!players.ContainsKey(i))
                         {
-                            Player newPlayer = new Player(new Majlo(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
+                            Player newPlayer = new Player(new VodafoneMascot(ScreenManager.Content)); //TODO sredit ovo - nekakav random ili sta vec
                             newPlayer.inputPosition = new KinectController(0, 0, 0);
                             initPlankBody(newPlayer);
                             gameMode = GameMode.TWO_PLAYERS_VS;

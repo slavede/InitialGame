@@ -72,11 +72,11 @@ namespace XnaTest
             //ScreenManager.RemoveScreen(highScoreMenuScreen);
             //ScreenManager.RemoveScreen(enterHighScoreMenuScreen);
 
-            //MainMenuScreen mainMenuScreen = new MainMenuScreen();
-            //ScreenManager.AddScreen(mainMenuScreen);
+            MainMenuScreen mainMenuScreen = new MainMenuScreen();
+            ScreenManager.AddScreen(mainMenuScreen);
 
-             EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(12352, 10);
-             ScreenManager.AddScreen(enterHighScoreScreen);
+            //EnterHighScoreScreen enterHighScoreScreen = new EnterHighScoreScreen(12352, 10);
+            //ScreenManager.AddScreen(enterHighScoreScreen);
 
             //HighScoreScreen highScoreScreen = new HighScoreScreen();
             //ScreenManager.AddScreen(highScoreScreen);
