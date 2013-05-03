@@ -12,8 +12,8 @@ namespace XnaTest.Character.Characters
 {
     class VodafoneMascot : ICharacterSprite
     {
-        private const double MAX_ANGLE = 1.55;
-        private const int POSITION_DEVIATION = 10;
+        private const double MAX_ANGLE = Math.PI / 2;
+        private const int POSITION_DEVIATION = 1;
 
         private Texture2D textureDown;
         private TextureAtlas textureAtlasDown;
@@ -67,8 +67,8 @@ namespace XnaTest.Character.Characters
         public void Draw(SpriteBatch spriteBatch, Vector2 location)
         {
             textureRegionDown = textureAtlasDown.GetRegion(currentFrameDown.ToString("0000"));
-            Vector2 locationDown = new Vector2(location.X, location.Y + textureRegionDown.Bounds.Height - 160);
-            spriteBatch.Draw(textureDown, locationDown, textureRegionDown.Bounds, Color.White, 0f, textureRegionDown.OriginCenter, 0.6f, SpriteEffects.None, 0f);    
+            Vector2 locationDown = new Vector2(location.X, location.Y + textureRegionDown.Bounds.Height - 178);
+            spriteBatch.Draw(textureDown, locationDown, textureRegionDown.Bounds, Color.White, 0f, textureRegionDown.OriginCenter, 0.5f, SpriteEffects.None, 0f);    
 
             textureRegionUp = textureAtlasUp.GetRegion(currentFrameUp.ToString("0000"));
             Vector2 locationUp = new Vector2(location.X, location.Y - textureRegionUp.Bounds.Height + 210);

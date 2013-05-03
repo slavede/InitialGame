@@ -404,13 +404,13 @@ namespace XnaTest
                     Skeleton skel = skeletonData[i];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
-                        // update the gesture controller
+                        //update the gesture controller
                         gestureControllerHandler.UpdateAllGestures(skel);
                         if (gestureControllerHandler.Gesture != null && gestureControllerHandler.Gesture.Equals("Joined Hands Anywhere"))
                         {
                             ScreenManager.AddScreen(new MainMenuScreen());//TODO vidjet dal je bolje samo zalijepit mainMenu gore ili ne
                             
-                            //gestureControllerHandler.Gesture = null;
+                            gestureControllerHandler.Gesture = null;
                         }
                         if (!players.ContainsKey(i))
                         {

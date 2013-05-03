@@ -269,16 +269,28 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharacterSprites\VodafoneDown.png">
-      <Name>VodafoneDown</Name>
+    <Compile Include="CharacterSprites\VodafoneDown2.png">
+      <Name>VodafoneDown2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="CharacterSprites\VodafoneDown.xml">
-      <Name>VodafoneDownXML</Name>
+    <Compile Include="CharacterSprites\VodafoneDown2.xml">
+      <Name>VodafoneDownXML1</Name>
       <Importer>TextureAtlasImporter</Importer>
       <Processor>TextureAtlasProcessor</Processor>
     </Compile>
+    <Compile Include="CharacterSprites\VodafoneUp2.png">
+      <Name>VodafoneUp2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="CharacterSprites\VodafoneUp2.xml">
+      <Name>VodafoneUpXML1</Name>
+      <Importer>TextureAtlasImporter</Importer>
+      <Processor>TextureAtlasProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CharacterSprites\VodafoneUp.png">
       <Name>VodafoneUp</Name>
       <Importer>TextureImporter</Importer>
@@ -286,6 +298,16 @@
     </Compile>
     <Compile Include="CharacterSprites\VodafoneUp.xml">
       <Name>VodafoneUpXML</Name>
+      <Importer>TextureAtlasImporter</Importer>
+      <Processor>TextureAtlasProcessor</Processor>
+    </Compile>
+    <Compile Include="CharacterSprites\VodafoneDown.png">
+      <Name>VodafoneDown</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="CharacterSprites\VodafoneDown.xml">
+      <Name>VodafoneDownXML</Name>
       <Importer>TextureAtlasImporter</Importer>
       <Processor>TextureAtlasProcessor</Processor>
     </Compile>

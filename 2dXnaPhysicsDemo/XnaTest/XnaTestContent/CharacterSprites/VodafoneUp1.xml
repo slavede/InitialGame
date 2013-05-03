@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="gornji dio tijela.png">
+   <SubTexture name="0001" x="0" y="0" width="320" height="240" />
+   <SubTexture name="0002" x="0" y="241" width="320" height="240" />
+   <SubTexture name="0003" x="321" y="0" width="320" height="240" />
+   <SubTexture name="0004" x="321" y="241" width="320" height="240" />
+   <SubTexture name="0005" x="642" y="0" width="320" height="240" />
+   <SubTexture name="0006" x="642" y="241" width="320" height="240" />
+   <SubTexture name="0007" x="0" y="482" width="320" height="240" />
+   <SubTexture name="0008" x="0" y="723" width="320" height="240" />
+   <SubTexture name="0009" x="321" y="482" width="320" height="240" />
+   <SubTexture name="0010" x="321" y="723" width="320" height="240" />
+   <SubTexture name="0011" x="642" y="482" width="320" height="240" />
+   <SubTexture name="0012" x="642" y="723" width="320" height="240" />
+   <SubTexture name="0013" x="963" y="0" width="320" height="240" />
+   <SubTexture name="0014" x="963" y="241" width="320" height="240" />
+   <SubTexture name="0015" x="1284" y="0" width="320" height="240" />
+   <SubTexture name="0016" x="963" y="482" width="320" height="240" />
+   <SubTexture name="0017" x="1284" y="241" width="320" height="240" />
+   <SubTexture name="0018" x="1605" y="0" width="320" height="240" />
+   <SubTexture name="0019" x="963" y="723" width="320" height="240" />
+   <SubTexture name="0020" x="1284" y="482" width="320" height="240" />
+   <SubTexture name="0021" x="1605" y="241" width="320" height="240" />
+   <SubTexture name="0022" x="1284" y="723" width="320" height="240" />
+   <SubTexture name="0023" x="1605" y="482" width="320" height="240" />
+   <SubTexture name="0024" x="1605" y="723" width="320" height="240" />
+   <SubTexture name="0025" x="0" y="964" width="320" height="240" />
+   <SubTexture name="0026" x="0" y="1205" width="320" height="240" />
+   <SubTexture name="0027" x="321" y="964" width="320" height="240" />
+   <SubTexture name="0028" x="0" y="1446" width="320" height="240" />
+   <SubTexture name="0029" x="321" y="1205" width="320" height="240" />
+   <SubTexture name="0030" x="642" y="964" width="320" height="240" />
+   <SubTexture name="0031" x="321" y="1446" width="320" height="240" />
+   <SubTexture name="0032" x="642" y="1205" width="320" height="240" />
+   <SubTexture name="0033" x="963" y="964" width="320" height="240" />
+   <SubTexture name="0034" x="642" y="1446" width="320" height="240" />
+   <SubTexture name="0035" x="963" y="1205" width="320" height="240" />
+   <SubTexture name="0036" x="1284" y="964" width="320" height="240" />
+   <SubTexture name="0037" x="963" y="1446" width="320" height="240" />
+   <SubTexture name="0038" x="1284" y="1205" width="320" height="240" />
+   <SubTexture name="0039" x="1605" y="964" width="320" height="240" />
+   <SubTexture name="0040" x="1284" y="1446" width="320" height="240" />
+</TextureAtlas>

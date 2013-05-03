@@ -32,7 +32,7 @@ namespace XnaTest.Utils
             clearTimer.Elapsed += new ElapsedEventHandler(clearTimer_Elapsed);
 
             // register the gestures for this demo
-            RegisterGestures();
+            //RegisterGestures();
         }
 
         /// <summary>
