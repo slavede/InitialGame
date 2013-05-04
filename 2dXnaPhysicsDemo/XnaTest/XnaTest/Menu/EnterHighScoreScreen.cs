@@ -111,8 +111,7 @@ namespace XnaTest.Menu
             if (activatedLetter.Equals("OK"))
             {
                 kinectPongDAL.InsertHighScore(currentName, scoreToEnter, maximumTopScores);
-                HighScoreScreen highScoreScreen = new HighScoreScreen();
-                ScreenManager.AddScreen(highScoreScreen);
+                ExitScreen();
             }
             else if (activatedLetter.Equals("<-"))
             {
