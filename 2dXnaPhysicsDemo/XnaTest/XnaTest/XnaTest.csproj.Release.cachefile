@@ -24,8 +24,6 @@ Content\wired_basket_cover.xnb
 Content\CharacterSprites\majlo-with-plank.xnb
 Content\letter.xnb
 Content\circle_fill.xnb
-Content\CharacterSprites\Avatar.xnb
-Content\CharacterSprites\VodafoneMascot.xnb
 Content\notebook.xnb
 Content\phone.xnb
 Content\Common\AnimationStrip.xnb
@@ -35,5 +33,7 @@ Content\wheelBackgroundMain.xnb
 Content\wheelBackgroundPause.xnb
 Content\Font.xnb
 Content\HighScoreHeading.xnb
+Content\CharacterSprites\Avatar.xnb
+Content\CharacterSprites\VodafoneMascot.xnb
 Content\CharacterSprites\AvatarJSON.xnb
 Content\CharacterSprites\VodafoneMascotXML.xnb
